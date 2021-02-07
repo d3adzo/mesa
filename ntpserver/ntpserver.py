@@ -21,3 +21,7 @@ class NTPServer:
     #receive beacon via NTP response, send to teamserver for board
     def receiveBeacon():
         pass
+        #C: sends ntp resync req
+        #S/NTPS: receive 'beacon'
+        #S: send timestamp to TS/DB
+        #S/NTPS: craft actual time packet and send

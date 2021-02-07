@@ -7,6 +7,7 @@ class DB:
     # status (MIA default)
     # pingtimestamp (current timestamp default)
     # missedpings int (0 default)
+    #?hostname field?
     def __init__(self):
         pass #check if db exists, if so pulls data from
         #otherwise creates database and tables
@@ -30,4 +31,4 @@ class DB:
         pass
 
     def aliveStatus(ip): #after receiving beacon
-        pass
+        pass #updates timestamp
