@@ -1,14 +1,13 @@
-import ipaddress  # TODO move?
-from server.c2 import C2  # TODO move?
-
-
 from teamserver import teamserver
+
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.completion import WordCompleter
 from termcolor import colored
+
 from os import system
+import ipaddress
 
 TS = teamserver.Teamserver() #setup and pulls from db
 
@@ -33,7 +32,6 @@ def mesaPrompt(): #TS is teamserver object
     The MESA Project ~ d3adzo""", 'red'))
     print('\nEnter "help" for list of commands.\n')
 
-    c2dict = {}  # //TODO later change to actual DB
     baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown']
     MesaCompleter = WordCompleter(baseCMDs,
                                   ignore_case=True)
@@ -54,7 +52,10 @@ def mesaPrompt(): #TS is teamserver object
                 if arr[1] == "agent" or arr[1] == "a":
                     #TODO add check to list/dict that agent exists first, ts.getc2list
                     interactPrompt("agent", arr[2])
-                elif arr[1] == "group" or arr[1] == "g":
+                elif arr[1] == "os" or arr[1] == "o":
+                    #TODO add check to list/dict that group exists, ts.getc2list
+                    interactPrompt("group", arr[2])
+                elif arr[1] == "service" or arr[1] == "s":
                     #TODO add check to list/dict that group exists, ts.getc2list
                     interactPrompt("group", arr[2])
                 else:
@@ -67,7 +68,7 @@ def mesaPrompt(): #TS is teamserver object
             print('Base Command List')
             print(colored(" agents ~ display the board of agent entries.\n "
                             "db ~ enter the database subprompt. add/delete/edit entries here.\n "
-                            "interact <A[GENT]/G[ROUP]> <id> ~ enter the interact subprompt. Ping/kill agents, or enter the CMD subprompt here.\n "
+                            "interact <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. Ping/kill agents, or enter the CMD subprompt here.\n "
                             "clear ~ clear the prompt.\n "
                             "help ~ display this list of commands.\n "
                             "exit ~ quit the program, state will be saved.\n "
@@ -78,7 +79,9 @@ def mesaPrompt(): #TS is teamserver object
             exit()
         elif user_input == "shutdown":
             exit() #for now
-            pass  # full cleanup process and exit
+            pass  # full cleanup process and exit 
+            #TODO clean db
+            #TODO remove /tmp/mesaDB as well
         else:
             print(colored('Base command not recognized. Enter \"help\" for command list.', 'red'))
 
@@ -96,28 +99,48 @@ def dbPrompt():
 
         if user_input.split(' ')[0] == "add":
             try:
-                ip = user_input.split(' ')[1]
-                TS.getDBObj().addAgent(ip)
+                sep = user_input.split(' ')
+                try:
+                    ip = ipaddress.ip_address(sep[1])
+                except:
+                    print("Invalid IP, try again")
+                    continue
+
+                TS.getDBObj().addAgent(ip, sep[2], sep[3]) #add agent to db
+
             except:
                 print(colored("Incorrect arguments given.\n "
-                "SYNTAX: add <ip> <OS>", 'yellow'))
-            pass  # add user agent to c2 list (db)
+                    "SYNTAX: add <ip> <OS> <service>", 'yellow'))
+
         elif user_input.split(' ')[0] == "delete":
             try:
-                ip = user_input.split(' ')[1]
-                TS.getDBObj().deleteAgent(ip, os)
+                sep = user_input.split(' ')
+                try:
+                    ip = ipaddress.ip_address(sep[1])
+                except:
+                    print("Invalid IP, try again")
+                    continue
+
+                TS.getDBObj().deleteAgent(ip) #delete agent from db
+
             except:
                 print(colored("Incorrect arguments given.\n SYNTAX: delete <ip>", 'yellow'))
-            pass  # delete agent from c2 list (db)
+
         elif user_input == "list":
             TS.getDBObj().dbPull()
-            pass  # list agents in nice table (pull updated from db)
+            TS.displayBoard()
+
         elif user_input == "clean":
-            TS.getDBObj().cleanDB()
-            pass  # remove all agents from db
+            confirmation = (input("Confirm (y/n)?")).lower()
+            if confirmation == "y":
+                TS.getDBObj().cleanDB()
+
+            elif confirmation == "n":
+                pass #back to prompt
+
         elif user_input == "help":
             print('DB Subcommand List')
-            print(colored(" add <ip> <os> ~ add agent to the database.\n "
+            print(colored(" add <ip> <os> <service> ~ add agent to the database.\n "
                           "delete <ip> ~ delete agent from the database.\n "
                           "list ~ list all agent entries.\n "
                           "clean ~ empty the database.\n " #TODO make it so not during active, agents must be killed.
@@ -125,8 +148,10 @@ def dbPrompt():
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
                           'yellow'))
+
         elif user_input == "back":
             return
+
         else:
             print(colored('DB subcommand not recognized. Enter \"help\" for list of DB subcommands.', 'red'))
 
@@ -153,6 +178,11 @@ def interactPrompt(interactType, id):
             #S/NTPS: send actual time update packet?
         elif user_input == "kill": 
             pass  #send agent kill command, y/n confirmation
+            confirmation = (input("Confirm (y/n)?")).lower()
+            if confirmation == "y":
+                pass #follow through with kill command
+            elif confirmation == "n":
+                pass #back to prompt
         elif user_input == "cmd":
             cmdPrompt(interactType, id)
         elif user_input == "help":
@@ -189,7 +219,7 @@ def cmdPrompt(interactType, id):
         elif user_input == "back":
             return
         else:
-            pass 
+            pass #TODO what about running exes/commands that hang?s
             #S: encode command
             #TR: create commandpacket with encoded command
             #S: send commandpacket to selected client
@@ -206,22 +236,4 @@ def cmdPrompt(interactType, id):
 
     #setup DB?
     #setup beacon graphing
-"""
-    try:
-        ip = ipaddress.ip_address(inp)
-    except:
-        print("Invalid IP, try again")
-        continue
 
-    print("Enter <0> for Windows or <1> for Linux:")
-    inp2 = int(input("MESA ~ "))
-    if inp2 == 0:
-        osys = "Windows"
-    else:
-        osys = "Linux"
-           
-        c2dict[ip] = C2(ip, osys) 
-
-    for value in c2dict.values():
-        value.__str__()
-    """

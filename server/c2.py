@@ -5,16 +5,11 @@ class C2:
         self.ipaddr = ipaddr
         self.osys = osys
 
-    #to string for printing
-    def __str__(self):
-        print("IP: ", self.ipaddr)
-        print("Operating System: ", self.osys)
-
     #send given cmd to API for conversion
     def convertCMD(cmd):
         return convert.encode(cmd)
 
-    #
+    #receive output and decode, return to TS/(DB)?
     def receiveOutput(output):
         return convert.decode(output)
     

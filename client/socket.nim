@@ -30,4 +30,7 @@ parse/decode bytes into readable
 ->resync request
 ->receive actual time info from NTP server
 
+
+
+client also must check to see if the time service is running
 ]#
