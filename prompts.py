@@ -13,24 +13,9 @@ import ipaddress
 TS = teamserver.Teamserver() #setup and pulls from db
 
 def mesaPrompt(): #TS is teamserver object
-    print(colored(r"""
-    ⠀⠀⠀⠀   ⠀⠀⠀⢀⣀⣠⣤⣤⣴⣦⣤⣤⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-    ⠀⠀⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⠿⠿⠿⠿⣿⣿⣿⣿⣶⣤⡀⠀⠀⠀⠀⠀⠀
-    ⠀⠀⠀⠀⣠⣾⣿⣿⡿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣶⡀⠀⠀⠀⠀
-    ⠀⠀⠀⣴⣿⣿⠟⠁⠀⠀⠀⣶⣶⣶⣶⡆⠀⠀⠀⠀⠀⠀⠈⠻⣿⣿⣦⠀⠀⠀
-    ⠀⠀⣼⣿⣿⠋⠀⠀⠀⠀⠀⠛⠛⢻⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣧⠀⠀
-    ⠀⢸⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⡇⠀
-    ⠀⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⠀
-    ⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⡟⢹⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⣹⣿⣿⠀
-    ⠀⣿⣿⣷⠀⠀⠀⠀⠀⠀⣰⣿⣿⠏⠀⠀⢻⣿⣿⡄⠀⠀⠀⠀⠀⠀⣿⣿⡿⠀
-    ⠀⢸⣿⣿⡆⠀⠀⠀⠀⣴⣿⡿⠃⠀⠀⠀⠈⢿⣿⣷⣤⣤⡆⠀⠀⣰⣿⣿⠇⠀
-    ⠀⠀⢻⣿⣿⣄⠀⠀⠾⠿⠿⠁⠀⠀⠀⠀⠀⠘⣿⣿⡿⠿⠛⠀⣰⣿⣿⡟⠀⠀
-    ⠀⠀⠀⠻⣿⣿⣧⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⠏⠀⠀⠀
-    ⠀⠀⠀⠀⠈⠻⣿⣿⣷⣤⣄⡀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣿⣿⠟⠁⠀⠀⠀⠀
-    ⠀⠀⠀⠀⠀⠀⠈⠛⠿⣿⣿⣿⣿⣿⣶⣶⣿⣿⣿⣿⣿⠿⠋⠁⠀⠀⠀⠀⠀⠀
-              ⠀⠉⠉⠛⠛⠛⠛⠛⠛⠉⠉⠀⠀⠀
-            ⠀
-    The MESA Project ~ d3adzo""", 'red'))
+    f = open("textfiles/logo.txt", "r")
+    reading = f.read()
+    print(colored(reading, "red"))
     print('\nEnter "help" for list of commands.\n')
 
     baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown']
@@ -51,20 +36,22 @@ def mesaPrompt(): #TS is teamserver object
             try:
                 arr = user_input.split(' ')
                 if arr[1] == "agent" or arr[1] == "a":
-                    #TODO add check to list/dict that agent exists first, ts.getc2list
                     interactPrompt("agent", arr[2])
+
                 elif arr[1] == "os" or arr[1] == "o":
-                    #TODO add check to list/dict that group exists, ts.getc2list
                     interactPrompt("os", arr[2])
+
                 elif arr[1] == "service" or arr[1] == "s":
-                    #TODO add check to list/dict that group exists, ts.getc2list
                     interactPrompt("service", arr[2])
+
                 else:
                     print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/G[ROUP]> <id>", 'yellow'))
             except:
                 print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/G[ROUP]> <id>", 'yellow'))
+        
         elif user_input == "clear":
             system('clear')
+
         elif user_input == "help":
             print('Base Command List')
             print(colored(" agents ~ display the board of agent entries.\n "
@@ -75,14 +62,16 @@ def mesaPrompt(): #TS is teamserver object
                             "exit ~ quit the program, state will be saved.\n "
                             "shutdown ~ quit the program, all agents are killed, database is cleaned.",
                             'yellow'))
+
         elif user_input == "exit":
             print("\nTime, Dr. Freeman?\nIs it really that time again?\n")
             exit()
+
         elif user_input == "shutdown":
             exit() #for now
             pass  # full cleanup process and exit 
             #TODO clean db
-            #TODO remove /tmp/mesaDB as well
+            
         else:
             print(colored('Base command not recognized. Enter \"help\" for command list.', 'red'))
 

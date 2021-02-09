@@ -11,12 +11,15 @@ def receiveOutput(output):
 #send command via NTP message, craft mal packet
 def sendCMD(cmd, destGroup, endpoint):
     if destGroup == "service":
+        pass
         #pull from db list of ips for selected service
         #loop through, sending cmd to each one
     elif destGroup == "os":
+        pass
         #pull from db list of ips for selected os
         #loop through, sending cmd to each one
     else:
+        pass
         #send command to selected endpoint agent
     encoded = convertCMD(cmd)
     cPacket = packets.CommandPacket()

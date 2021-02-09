@@ -1,23 +1,22 @@
-import transport
-import server
+from transport import packets
+from server import c2
 import datetime
 
 class NTPServer:
 
     def __init__(self):
-        pass
+        pass #"start" the server?
 
     def getTime():
-        info = TimeInfo()
-        return info
+        return datetime.datetime.now() #returns current time
 
-    def sendTime(c2obj):
-        createNTPPacket(c2obj.ipaddr, c2obj.osys)
+    def sendTime(source, destination):
+        createNTPPacket()
         #send packet
 
     def createNTPPacket(source, destination):
-        info = getTime()
-        nPacket = NTPPacket(source, destination, info)
+        timeinfo = getTime()
+        nPacket = packets.NTPPacket(source, destination, info)
 
     #receive beacon via NTP response, send to teamserver for board
     def beaconReceived():
