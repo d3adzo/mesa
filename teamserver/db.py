@@ -2,76 +2,67 @@ import mysql.connector
 import datetime
 import getpass
 
+from termcolor import colored
+
 class DB:
-    #db fields: 
-    # agentIp (given) 
-    # OS (given) 
-    # service (given)
-    # status (MIA default)
-    # pingtimestamp (given, current timestamp default)
-    # missedpings int (0 default)
     def __init__(self):
-        pass #check if db exists, if so pulls data from
+        #check if db exists, if so pulls data from
         #otherwise creates database and tables
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        username = input("Enter MySQL username: ")
-        password = getpass.getpass(prompt="Enter MySQL password: ")
+        #username = input("Enter MySQL username: ")
+        #password = getpass.getpass(prompt="Enter MySQL password: ")
 
         self.mydb = mysql.connector.connect(
             host="localhost",
-            user=username,
-            password=password,
-            database = "mesaC2s" #TODO what if the DB doesn't exist? How to create w/o error out
+            user="root", #TODO change to = username,
+            password="mesa" #TODO change to = password
         )
 
-        self.mycursor = mydb.cursor()
+        self.mycursor = self.mydb.cursor()
+        
+        self.mycursor.execute("create database if not exists mesaC2s") #create msql db
 
+        self.mycursor.execute("use mesaC2s")
 
-        """
-        self.mycursor.execute("create database mesaC2s if not exists;") #create msql db
-
-        self.mycursor.execute("use mesaC2s;")
-
-        self.mycursor.execute("create table agents if not exists("
+        self.mycursor.execute("create table if not exists agents("
                          "agentID varchar(16) not null primary key,"
                          "os varchar(255) not null,"
                          "service varchar(255) not null,"
-                         "status varchar(10) not null default MIA,"
-                         "pingtimestamp timestamp null,"
-                         "missedpings int not null default 0"
-                         ");")
-        """
+                         "status varchar(10) not null default \'MIA\',"
+                         "pingtimestamp timestamp null)")
+
+        #so do i check for data in and then pull? how do this?        
 
     def addAgent(self, ip, os, service):
-        self.mycursor.execute("insert into agents "
-                        "(agentIP, OS, service) "
-                        "values " 
-                        f"({ip}, {os}, {service})")
+        #print(f"insert into agents (agentID, os, service) values (\'{ip}\', \'{os}\', \'{service}\')")
+        sqlcmd = "insert into agents (agentID, os, service) values (%s, %s, %s)"
+        values = (str(ip), os, service)
+        
+        self.mycursor.execute(sqlcmd, values)
+        self.mydb.commit()
 
         print(f"Agent {ip}/{os} added!")
 
     def deleteAgent(self, ip):
-        self.mycursor.execute(f"delete from agents where agentID = {ip}")
+        self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
         print(f"Agent {ip} deleted!")
 
     def dbPull(self):
         self.mycursor.execute("select * from agents order by service asc")
-        #for x in mycursor:
-            #print(x)
         return self.mycursor
 
-    def cleanDB(self):
+    def removeAllAgents(self): #removes all agents
         self.mycursor.execute("delete from agents")
 
         self.mydb.commit()
-        print("DB cleaned!")
+        print("All agents removed!")
 
     def missingStatus(self, ip): #after 2 pings missed (timestamp+2min)
         self.mycursor.execute("update agents "
                         "set status = \'MIA\'"
-                        "where agentID = \'{ip}\'")
+                        "where agentID =\'{ip}\'")
 
         self.mydb.commit()
         print(colored(f"Agent {ip} is MIA!", "yellow")) 
@@ -100,11 +91,23 @@ class DB:
         #cool
         self.mycursor.execute("select pingtimestamp from agents")
 
-
+    #TODO add clean method. removes full db (for shutdown option)
 
     #adding to db
     #given ip, os, service
     #timestamp null, status MIA
     #on first alive ping from client, current timestamp, alive status
     #start timer only now that timestamp is not null and has a valid value
+
+    """
++---------------+--------------+------+-----+---------+-------+
+| Field         | Type         | Null | Key | Default | Extra |
++---------------+--------------+------+-----+---------+-------+
+| agentID       | varchar(16)  | NO   | PRI | NULL    |       |
+| os            | varchar(255) | NO   |     | NULL    |       |
+| service       | varchar(255) | NO   |     | NULL    |       |
+| status        | varchar(10)  | NO   |     | MIA     |       |
+| pingtimestamp | timestamp    | YES  |     | NULL    |       |
++---------------+--------------+------+-----+---------+-------+
+"""
         

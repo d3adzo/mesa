@@ -77,7 +77,7 @@ def mesaPrompt(): #TS is teamserver object
 
 
 def dbPrompt():
-    dbCMDs = ['add', 'delete', 'list', 'clean', 'help', 'back']
+    dbCMDs = ['add', 'delete', 'list', 'removeall', 'help', 'back']
     dbCompleter = WordCompleter(dbCMDs,
                                 ignore_case=True)
     while True:
@@ -88,19 +88,19 @@ def dbPrompt():
                              )).lower()
 
         if user_input.split(' ')[0] == "add":
-            try:
+            #try:
                 sep = user_input.split(' ')
                 try:
                     ip = ipaddress.ip_address(sep[1])
                 except:
                     print("Invalid IP, try again")
                     continue
+                
+                TS.getDBObj().addAgent(str(ip), sep[2], sep[3]) #add agent to db
 
-                TS.getDBObj().addAgent(ip, sep[2], sep[3]) #add agent to db
-
-            except:
-                print(colored("Incorrect arguments given.\n "
-                    "SYNTAX: add <ip> <OS> <service>", 'yellow'))
+            #except:
+                #print(colored("Incorrect arguments given.\n "
+                 #   "SYNTAX: add <ip> <OS> <service>", 'yellow'))
 
         elif user_input.split(' ')[0] == "delete":
             try:
@@ -120,10 +120,10 @@ def dbPrompt():
             TS.getDBObj().dbPull()
             TS.displayBoard()
 
-        elif user_input == "clean":
-            confirmation = (input("Confirm (y/n)?")).lower()
+        elif user_input == "removeall":
+            confirmation = (input("Confirm (y/n)? ")).lower()
             if confirmation == "y":
-                TS.getDBObj().cleanDB()
+                TS.getDBObj().removeAllAgents()
 
             elif confirmation == "n":
                 pass #back to prompt
@@ -132,8 +132,8 @@ def dbPrompt():
             print('DB Subcommand List')
             print(colored(" add <ip> <os> <service> ~ add agent to the database.\n "
                           "delete <ip> ~ delete agent from the database.\n "
-                          "list ~ list all agent entries.\n "
-                          "clean ~ empty the database.\n " #TODO make it so not during active, agents must be killed.
+                          "list ~ list all agent entries.\n " 
+                          "removeall ~ empty the database.\n " #TODO make it so not during active, agents must be killed.
                           #"pull ~ manually update C2 board.\n " #TODO pull updated list for board update, run list after
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
@@ -156,7 +156,7 @@ def interactPrompt(interactType, id):
                              auto_suggest=AutoSuggestFromHistory(),
                              completer=interactCompleter
                              )).lower()
-        #submenu, add/del/listAgents/agentCmdOutput/clean/pull(from existing, maybe does this auto.)/back
+        #submenu, add/del/listAgents/agentCmdOutput/removeall/pull(from existing, maybe does this auto.)/back
         if user_input == "ping":
             pass  #ping agent
             #S: convert (reference id ping)
@@ -231,3 +231,4 @@ def cmdPrompt(interactType, id):
 
     #TODO add shell?
 
+#TODO add enter key 
