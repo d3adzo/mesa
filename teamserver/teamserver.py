@@ -2,12 +2,14 @@ from teamserver import db
 from ntpserver import ntpserver
 
 from termcolor import colored
+from os import system
 
 class Teamserver:
     def __init__(self):
 
         #try:
         self.agentDB = db.DB()
+        system('clear')
         """
         except:
             print(colored("Problem connecting to the MySQL DB! \n"
@@ -16,7 +18,9 @@ class Teamserver:
                     "red"))
             exit()
         """
+        print("Setting up NTP Server...")
         self.NTPServer = ntpserver.NTPServer()
+        system('clear')
 
     def getDBObj(self):
         return self.agentDB
@@ -27,6 +31,7 @@ class Teamserver:
     #display the board of active c2s, call again to refresh
     def displayBoard(self):
         data = self.agentDB.dbPull()
+        print(data)
         #TODO parse data into cool table
     
     def printOutput(self): #?does this go somewhere else

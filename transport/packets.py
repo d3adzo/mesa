@@ -9,13 +9,17 @@ class Packet:
 class NTPPacket(Packet):
     def __init__(self, destination):
         super().__init__(destination)
-        self.destination = destination
+    
+
+    def sendTimePacket(self):
+        pass
    
 class CommandPacket(Packet):
     def __init__(self, destination, command):
         super().__init__(destination)
         self.command = command
     
-    def sComPacket(self, destination):
+    
+    def sendCommandPacket(self, destination):
         pass
     

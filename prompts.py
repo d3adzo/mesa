@@ -10,7 +10,7 @@ from termcolor import colored
 from os import system
 import ipaddress
 
-TS = teamserver.Teamserver() #setup and pulls from db
+TS = teamserver.Teamserver() #setup NTP and pulls from db
 
 def mesaPrompt(): #TS is teamserver object
     f = open("textfiles/logo.txt", "r")
@@ -18,7 +18,7 @@ def mesaPrompt(): #TS is teamserver object
     print(colored(reading, "red"))
     print('\nEnter "help" for list of commands.\n')
 
-    baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown']
+    baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown'] #TODO change all completers to DB info (ips, services, os)
     MesaCompleter = WordCompleter(baseCMDs,
                                   ignore_case=True)
     while True:
@@ -32,22 +32,19 @@ def mesaPrompt(): #TS is teamserver object
             TS.displayBoard()
         elif user_input == "db":
             dbPrompt()
-        elif user_input.split(' ')[0] == "interact": # interact single c2/some (db) group identifier (select * from c2s where ex. os = linux)
-            try:
-                arr = user_input.split(' ')
-                if arr[1] == "agent" or arr[1] == "a":
-                    interactPrompt("agent", arr[2])
+        elif user_input.split(' ')[0] == "interact":
+            arr = user_input.split(' ')
+            if arr[1] == "agent" or arr[1] == "a":
+                interactPrompt("agent", arr[2])
 
-                elif arr[1] == "os" or arr[1] == "o":
-                    interactPrompt("os", arr[2])
+            elif arr[1] == "os" or arr[1] == "o":
+                interactPrompt("os", arr[2])
 
-                elif arr[1] == "service" or arr[1] == "s":
-                    interactPrompt("service", arr[2])
+            elif arr[1] == "service" or arr[1] == "s":
+                interactPrompt("service", arr[2])
 
-                else:
-                    print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/G[ROUP]> <id>", 'yellow'))
-            except:
-                print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/G[ROUP]> <id>", 'yellow'))
+            else:
+                print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>", 'yellow'))
         
         elif user_input == "clear":
             system('clear')
@@ -57,7 +54,6 @@ def mesaPrompt(): #TS is teamserver object
             print(colored(" agents ~ display the board of agent entries.\n "
                             "db ~ enter the database subprompt. add/delete/edit entries here.\n "
                             "interact <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. Ping/kill agents, or enter the CMD subprompt here.\n "
-                            "clear ~ clear the prompt.\n "
                             "help ~ display this list of commands.\n "
                             "exit ~ quit the program, state will be saved.\n "
                             "shutdown ~ quit the program, all agents are killed, database is cleaned.",
@@ -71,12 +67,14 @@ def mesaPrompt(): #TS is teamserver object
             exit() #for now
             pass  # full cleanup process and exit 
             #TODO clean db
-            
+        elif user_input == "":
+            pass #do nothing    
         else:
             print(colored('Base command not recognized. Enter \"help\" for command list.', 'red'))
 
 
 def dbPrompt():
+    #TODO verify ip/service/os exists in db
     dbCMDs = ['add', 'delete', 'list', 'removeall', 'help', 'back']
     dbCompleter = WordCompleter(dbCMDs,
                                 ignore_case=True)
@@ -117,7 +115,6 @@ def dbPrompt():
                 print(colored("Incorrect arguments given.\n SYNTAX: delete <ip>", 'yellow'))
 
         elif user_input == "list":
-            TS.getDBObj().dbPull()
             TS.displayBoard()
 
         elif user_input == "removeall":
@@ -133,15 +130,17 @@ def dbPrompt():
             print(colored(" add <ip> <os> <service> ~ add agent to the database.\n "
                           "delete <ip> ~ delete agent from the database.\n "
                           "list ~ list all agent entries.\n " 
-                          "removeall ~ empty the database.\n " #TODO make it so not during active, agents must be killed.
-                          #"pull ~ manually update C2 board.\n " #TODO pull updated list for board update, run list after
+                          "removeall ~ remove all agents from the database.\n " #TODO only works on agents that are dead? what if i delete one and then it pings?
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
                           'yellow'))
 
         elif user_input == "back":
             return
-
+        elif user_input == "":
+            pass #do nothing
+        elif user_input == "clear":
+            system('clear')
         else:
             print(colored('DB subcommand not recognized. Enter \"help\" for list of DB subcommands.', 'red'))
 
@@ -185,6 +184,10 @@ def interactPrompt(interactType, id):
                           'yellow'))
         elif user_input == "back":
             return 
+        elif user_input == "":
+            pass #do nothing
+        elif user_input == "clear":
+            system('clear')
         else:
             print(colored('Interact subcommand not recognized. Enter \"help\" for list of Interact subcommands.', 'red'))
 
@@ -208,8 +211,12 @@ def cmdPrompt(interactType, id):
                           'yellow'))
         elif user_input == "back":
             return
+        elif user_input == "":
+            pass #do nothing
+        elif user_input == "clear":
+            system('clear')
         else:
-            c2.sendCMD(user_input, interactType, id)
+            c2.sendCMD(TS, user_input, interactType, id)
             pass #TODO what about running exes/commands that hang?s
             #S: encode command
             #TR: create commandpacket with encoded command

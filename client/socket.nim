@@ -33,4 +33,9 @@ parse/decode bytes into readable
 
 
 client also must check to see if the time service is running
+
+
+TODO agent is compiled for specific os, sends initial ping
 ]#
+
+

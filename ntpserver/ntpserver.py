@@ -25,6 +25,7 @@ class NTPServer:
         #S/NTPS: receive 'beacon'
         #S: send timestamp to TS/DB
         #S/NTPS: craft actual time packet and send
+        #TODO change to alive status (DB), or if doesn't exist make entry w/ alive status
 
     def listen():
         pass #listening for beacon callouts, should be always running on a separate thread

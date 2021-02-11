@@ -4,18 +4,19 @@ import getpass
 
 from termcolor import colored
 
-class DB:
+class DB: #TODO REWORK all based around beacon recieved and packet sniffing
     def __init__(self):
         #check if db exists, if so pulls data from
         #otherwise creates database and tables
+        print("Setting up DB...")
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        #username = input("Enter MySQL username: ")
-        #password = getpass.getpass(prompt="Enter MySQL password: ")
+        username = input("Enter MySQL username: ")
+        password = getpass.getpass(prompt="Enter MySQL password: ")
 
         self.mydb = mysql.connector.connect(
             host="localhost",
-            user="root", #TODO change to = username,
-            password="mesa" #TODO change to = password
+            user=username,
+            password=password
         )
 
         self.mycursor = self.mydb.cursor()
@@ -41,23 +42,27 @@ class DB:
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        print(f"Agent {ip}/{os} added!")
+        print(f"Agent {ip}/{os}/{service} added!\n")
 
     def deleteAgent(self, ip):
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
-        print(f"Agent {ip} deleted!")
+        print(f"Agent {ip} deleted!\n")
 
     def dbPull(self):
         self.mycursor.execute("select * from agents order by service asc")
-        return self.mycursor
+        return self.mycursor.fetchall()
+    
+    def pullSpecific(self, grouping, value):
+        self.mycursor.execute(f"select agentID from agents where {grouping}=\'{value}\'")
+        return self.mycursor.fetchall()
 
     def removeAllAgents(self): #removes all agents
         self.mycursor.execute("delete from agents")
 
         self.mydb.commit()
-        print("All agents removed!")
+        print("All agents removed!\n")
 
     def missingStatus(self, ip): #after 2 pings missed (timestamp+2min)
         self.mycursor.execute("update agents "
@@ -65,7 +70,7 @@ class DB:
                         "where agentID =\'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Agent {ip} is MIA!", "yellow")) 
+        print(colored(f"Agent {ip} is MIA!\n", "yellow")) 
 
     def deadStatus(self, ip): #after agent killed
         self.mycursor.execute("update agents "
@@ -73,7 +78,7 @@ class DB:
                         f"where agentID = \'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Agent {ip} is dead!", "red")) 
+        print(colored(f"Agent {ip} is dead!\n", "red")) 
 
     def aliveStatus(self, ip): #after receiving beacon
         self.mycursor.execute("update agents "
@@ -81,7 +86,7 @@ class DB:
                         f"where agentID = \'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Ping from agent {ip}!", "green")) 
+        print(colored(f"Ping from agent {ip}!\n", "green")) 
 
     def checkStatus(self):
         #TODO how will i do this? will this run every minute? separate thread?
