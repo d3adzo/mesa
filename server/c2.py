@@ -21,3 +21,5 @@ def sendCMD(tsOBJ, cmd, destGroup, endpoint):
     encoded = convertCMD(cmd)
     cPacket = packets.CommandPacket()
         
+
+    #TODO have an initial "ping" setup msg that populates the ip and os fields, add service as descriptor after

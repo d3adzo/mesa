@@ -1,21 +1,12 @@
-import net, os
+package main
 
-proc cSock() = 
-    var socket = newSocket()
-    socket.bindAddr(Port(1234))
-    socket.listen()
-    var client: Socket
-    var address = ""
-
-    socket.acceptAddr(client, address)
-    echo("Client connected from: ", address)
+import "fmt"
+func main() {
+    fmt.Println("hello world")
+}
 
 
-
-cSock()
-
-
-#[raw sockets
+/*raw sockets
 
 recieve beacon, see ping/comd id
 parse/decode bytes into readable
@@ -36,6 +27,6 @@ client also must check to see if the time service is running
 
 
 TODO agent is compiled for specific os, sends initial ping
-]#
+*/
 
 
