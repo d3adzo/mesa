@@ -30,9 +30,11 @@ def mesaPrompt(): #TS is teamserver object
 
         if user_input == "agents":
             TS.displayBoard()
+
         elif user_input == "db":
             dbPrompt()
-        elif user_input.split(' ')[0] == "interact":
+
+        elif user_input.split(' ')[0] == "interact": #TODO add check to make sure ip/os/service given exists in DB
             arr = user_input.split(' ')
             if arr[1] == "agent" or arr[1] == "a":
                 interactPrompt("agent", arr[2])
@@ -75,7 +77,7 @@ def mesaPrompt(): #TS is teamserver object
 
 def dbPrompt():
     #TODO verify ip/service/os exists in db
-    dbCMDs = ['add', 'delete', 'list', 'removeall', 'help', 'back']
+    dbCMDs = ['group', 'list', 'removeall', 'help', 'back']
     dbCompleter = WordCompleter(dbCMDs,
                                 ignore_case=True)
     while True:
@@ -85,34 +87,8 @@ def dbPrompt():
                              completer=dbCompleter
                              )).lower()
 
-        if user_input.split(' ')[0] == "add":
-            #try:
-                sep = user_input.split(' ')
-                try:
-                    ip = ipaddress.ip_address(sep[1])
-                except:
-                    print("Invalid IP, try again")
-                    continue
-                
-                TS.getDBObj().addAgent(str(ip), sep[2], sep[3]) #add agent to db
-
-            #except:
-                #print(colored("Incorrect arguments given.\n "
-                 #   "SYNTAX: add <ip> <OS> <service>", 'yellow'))
-
-        elif user_input.split(' ')[0] == "delete":
-            try:
-                sep = user_input.split(' ')
-                try:
-                    ip = ipaddress.ip_address(sep[1])
-                except:
-                    print("Invalid IP, try again")
-                    continue
-
-                TS.getDBObj().deleteAgent(ip) #delete agent from db
-
-            except:
-                print(colored("Incorrect arguments given.\n SYNTAX: delete <ip>", 'yellow'))
+        if user_input == "group":
+            TS.getDBObj().addGrouping(ip, identifier)
 
         elif user_input == "list":
             TS.displayBoard()
@@ -127,8 +103,7 @@ def dbPrompt():
 
         elif user_input == "help":
             print('DB Subcommand List')
-            print(colored(" add <ip> <os> <service> ~ add agent to the database.\n "
-                          "delete <ip> ~ delete agent from the database.\n "
+            print(colored(" group <ip> <serviceName> ~ add a service identifier to an agent.\n "
                           "list ~ list all agent entries.\n " 
                           "removeall ~ remove all agents from the database.\n " #TODO only works on agents that are dead? what if i delete one and then it pings?
                           "help ~ display this list of commands.\n "
@@ -234,8 +209,3 @@ def cmdPrompt(interactType, id):
 
     #setup DB?
     #setup beacon graphing
-
-
-    #TODO add shell?
-
-#TODO add enter key 

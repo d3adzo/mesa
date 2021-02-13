@@ -28,13 +28,15 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute("create table if not exists agents("
                          "agentID varchar(16) not null primary key,"
                          "os varchar(255) not null,"
-                         "service varchar(255) not null,"
+                         "service varchar(255) null,"
                          "status varchar(10) not null default \'MIA\',"
                          "pingtimestamp timestamp null)")
 
         #so do i check for data in and then pull? how do this?        
 
-    def addAgent(self, ip, os, service):
+
+    #DB MODS
+    def addAgent(self, ip, os, service): #NOW INTERNAL, when receive first (setup) ping
         #print(f"insert into agents (agentID, os, service) values (\'{ip}\', \'{os}\', \'{service}\')")
         sqlcmd = "insert into agents (agentID, os, service) values (%s, %s, %s)"
         values = (str(ip), os, service)
@@ -44,7 +46,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 
         print(f"Agent {ip}/{os}/{service} added!\n")
 
-    def deleteAgent(self, ip):
+    def deleteAgent(self, ip): #NOW INTERNAL, for kill command
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
@@ -54,9 +56,16 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute("select * from agents order by service asc")
         return self.mycursor.fetchall()
     
-    def pullSpecific(self, grouping, value):
+    def pullSpecific(self, grouping, value): #where have i used this?
         self.mycursor.execute(f"select agentID from agents where {grouping}=\'{value}\'")
         return self.mycursor.fetchall()
+
+    def addGrouping(self, ip, grouping):
+        sqlcmd = "insert into agents (service) values (%s) where agentID=\'%s\'"
+        values = (grouping, str(ip))
+        self.mycursor.execute(sqlcmd, values)
+
+        print(f"Identifier {grouping} added to {str(ip)}!\n")
 
     def removeAllAgents(self): #removes all agents
         self.mycursor.execute("delete from agents")
@@ -64,10 +73,13 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mydb.commit()
         print("All agents removed!\n")
 
-    def missingStatus(self, ip): #after 2 pings missed (timestamp+2min)
+
+
+    #STATUS CHECKS
+    def missingStatus(self, ip): #after 3 pings missed (timestamp+3min)
         self.mycursor.execute("update agents "
                         "set status = \'MIA\'"
-                        "where agentID =\'{ip}\'")
+                        f"where agentID =\'{ip}\'")
 
         self.mydb.commit()
         print(colored(f"Agent {ip} is MIA!\n", "yellow")) 
