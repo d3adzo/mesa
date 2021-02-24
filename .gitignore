@@ -4,3 +4,6 @@ __pycache__/
 .gitignore
 .gitattributes
 textfiles/history.txt
+mysqlfix.sh
+pycache.sh
+todo.txt
