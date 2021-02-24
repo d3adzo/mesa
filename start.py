@@ -1,12 +1,15 @@
 from prompts import mesaPrompt
-from teamserver import teamserver
+from os import geteuid
 
-#TODO make file clear history on start
 #TODO pip3 install reqs file
 #TODO on client, make command run in background (ie linux &)
 
 #Entrypoint
 def main():
+    if os.geteuid() != 0:
+        print('You must run as root')
+        exit(1)
+
     mesaPrompt()
 
 

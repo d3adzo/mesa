@@ -32,51 +32,63 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
                          "status varchar(10) not null default \'MIA\',"
                          "pingtimestamp timestamp null)")
 
-        #so do i check for data in and then pull? how do this?        
 
 
     #DB MODS
-    def addAgent(self, ip, os, service): #NOW INTERNAL, when receive first (setup) ping
-        #print(f"insert into agents (agentID, os, service) values (\'{ip}\', \'{os}\', \'{service}\')")
-        sqlcmd = "insert into agents (agentID, os, service) values (%s, %s, %s)"
-        values = (str(ip), os, service)
+    def addAgent(self, ip, os, timestamp): #INTERNAL, when receive first (setup) ping
+        sqlcmd = "insert into agents (agentID, os, timestamp) values (%s, %s, %s)"
+        values = (str(ip), os, str(timestamp)) #TODO make sure stamp is in correct format
         
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
         print(f"Agent {ip}/{os}/{service} added!\n")
 
-    def deleteAgent(self, ip): #NOW INTERNAL, for kill command
+
+    def deleteAgent(self, ip): #INTERNAL, for kill command
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
         print(f"Agent {ip} deleted!\n")
 
-    def dbPull(self):
+
+    def dbPull(self): #PUBLIC
         self.mycursor.execute("select * from agents order by service asc")
         return self.mycursor.fetchall()
     
-    def pullSpecific(self, grouping, value): #where have i used this?
+
+    def pullSpecific(self, grouping, value): #INTERNAL, use this when sending group commands?
         self.mycursor.execute(f"select agentID from agents where {grouping}=\'{value}\'")
         return self.mycursor.fetchall()
 
-    def addGrouping(self, ip, grouping):
+
+    def addGrouping(self, ip, grouping): #PUBLIC
         sqlcmd = "insert into agents (service) values (%s) where agentID=\'%s\'"
         values = (grouping, str(ip))
         self.mycursor.execute(sqlcmd, values)
 
         print(f"Identifier {grouping} added to {str(ip)}!\n")
 
-    def removeAllAgents(self): #removes all agents
+
+    def removeAllAgents(self): #PUBLIC, removes all agents
         self.mycursor.execute("delete from agents")
 
         self.mydb.commit()
         print("All agents removed!\n")
 
 
+    def updateTimestamp(self, tstamp, agent): #INTERNAL, updates on resync request
+        sqlcmd "insert into agents (pingtimestamp) values (%s) where agentID=\'%s\'"
+        values = (tstamp, agent)
+
+        self.mycursor.execute(sqlcmd, values)
+        self.mydb.commit()
+
+        #no print statement on resync?
+
 
     #STATUS CHECKS
-    def missingStatus(self, ip): #after 3 pings missed (timestamp+3min)
+    def missingStatus(self, ip): #INTERNAL, after 3 pings missed (timestamp+3min)
         self.mycursor.execute("update agents "
                         "set status = \'MIA\'"
                         f"where agentID =\'{ip}\'")
@@ -84,7 +96,8 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mydb.commit()
         print(colored(f"Agent {ip} is MIA!\n", "yellow")) 
 
-    def deadStatus(self, ip): #after agent killed
+
+    def deadStatus(self, ip): #PUBLIC, after agent killed
         self.mycursor.execute("update agents "
                         "set status = \'dead\'"
                         f"where agentID = \'{ip}\'")
@@ -92,13 +105,15 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mydb.commit()
         print(colored(f"Agent {ip} is dead!\n", "red")) 
 
-    def aliveStatus(self, ip): #after receiving beacon
+
+    def aliveStatus(self, ip): #INTERNAL, after receiving beacon
         self.mycursor.execute("update agents "
                         "set status = \'alive\'"
                         f"where agentID = \'{ip}\'")
 
         self.mydb.commit()
         print(colored(f"Ping from agent {ip}!\n", "green")) 
+
 
     def checkStatus(self):
         #TODO how will i do this? will this run every minute? separate thread?
@@ -122,7 +137,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 +---------------+--------------+------+-----+---------+-------+
 | agentID       | varchar(16)  | NO   | PRI | NULL    |       |
 | os            | varchar(255) | NO   |     | NULL    |       |
-| service       | varchar(255) | NO   |     | NULL    |       |
+| service       | varchar(255) | YES  |     | NULL    |       |
 | status        | varchar(10)  | NO   |     | MIA     |       |
 | pingtimestamp | timestamp    | YES  |     | NULL    |       |
 +---------------+--------------+------+-----+---------+-------+

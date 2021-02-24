@@ -133,22 +133,26 @@ def interactPrompt(interactType, id):
         #submenu, add/del/listAgents/agentCmdOutput/removeall/pull(from existing, maybe does this auto.)/back
         if user_input == "ping":
             pass  #ping agent
-            #S: convert (reference id ping)
-            #TR: craft NTPPacket
-            #S/NTPS: send packet to selected client
-            #C: raw socket, see ref id ping
-            #C: either send resync req or something with refid pong
-            #S/NTPS: receive resync req/pong 
-            #S/NTPS: send actual time update packet?
+            #TR: craft IDPacket with PING refid
+            #c2: send packet to selected client
+            #C: see refid ping
+            #C: send resync request
+            #NTPS: receive resync req/ping 
+            #?: update timestamp and enter into db alive status
+            #NTPS: send actual time update packet
+            c2.sendRefCMD(tsObj, interactType, id, "PING")
+
         elif user_input == "kill": 
             pass  #send agent kill command, y/n confirmation
             confirmation = (input("Confirm (y/n)?")).lower()
             if confirmation == "y":
-                pass #follow through with kill command
+                c2.sendRefCMD(tsObj, interactType, id, "KILL")
             elif confirmation == "n":
-                pass #back to prompt
+                continue #back to interact prompt
+
         elif user_input == "cmd":
             cmdPrompt(interactType, id)
+
         elif user_input == "help":
             print('Interact Subcommand List')
             print(colored(" ping ~ ping agent.\n "
@@ -157,6 +161,7 @@ def interactPrompt(interactType, id):
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
                           'yellow'))
+
         elif user_input == "back":
             return 
         elif user_input == "":
