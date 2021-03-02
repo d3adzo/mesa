@@ -1,35 +1,33 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"os"
-	"os/exec"
+	//"os/exec"
 	//"strings"
 	//"bytes"
 	//"log"
 
 	//"mesa/client/pkg/ntppacket"
-	"mesa/client/pkg/listener"
+	//"mesa/client/pkg/listener"
 	"mesa/client/pkg/agent"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
+	//"github.com/google/gopacket"
+	//"github.com/google/gopacket/pcap"
 )
 
 var newAgent agent.Agent
 
 func init(){
     newAgent = agent.Agent{}
-	newAgent.opsys, newAgent.shellType, newAgent.shellFlag = agent.detectOS()
-	newAgent.iface = agent.getNetAdapter(newAgent.shellType, newAgent.shellFlag)
-	newAgent.serverIP = agent.getServerIP()
-	newAgent.myIP = agent.getMyIP(newAgent.iface)
+	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
+	newAgent.IFace = agent.GetNetAdapter(newAgent.ShellType, newAgent.ShellFlag)
+	newAgent.ServerIP = agent.GetServerIP()
+	//newAgent.MyIP = agent.GetMyIP(newAgent.IFace)
 }
 
 func main() {
 	//NTP server ip passed as an argument when building?
-    fmt.Println("hello world!")
-	exec.Command(newAgent.shellType, newAgent.ShellFlag, "ifconfig")
 	
 	for { //program runs until break
 		os.Exit(0)
@@ -39,13 +37,13 @@ func main() {
 	
 		
 }
-
+/*
 
 func runCMD(command string, agent Agent) {
 	var startType string
 	var flag string
 
-	if agent.opsys == "windows"{
+	if agent.OpSys == "windows"{
 		startType = "cmd"
 		flag = "/c"
 	} else {
@@ -63,7 +61,7 @@ func runCMD(command string, agent Agent) {
 
 
 
-/*raw sockets
+raw sockets
 
 recieve beacon, see ping/comd id
 parse/decode bytes into readable
@@ -84,7 +82,8 @@ client also must check to see if the time service is running
 
 
 TODO agent is compiled for specific os, sends initial ping
-*/
+
 
 
 //TODO add firewall command rule in setup
+*/
