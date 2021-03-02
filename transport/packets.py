@@ -13,7 +13,10 @@ class NTPPacket(Packet):
     
 
     def sendTimePacket(self):
-        pass
+        pass 
+        #refId = GPS
+        #use actual NTP scapy
+
    
 
 class CommandPacket(Packet):

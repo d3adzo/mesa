@@ -19,7 +19,7 @@ class NTPServer:
         nPacket.sendTimePacket()
 
 
-    def listenResync(self):
+    def listenForResyncReq(self):
         #run in loop, thread when beacon recv
         pass #listening for beacon callouts, should be always running on a separate thread
         self.resyncReceived() #TODO arguments?
