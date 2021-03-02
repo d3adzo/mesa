@@ -8,6 +8,10 @@ In-progress C2 utlizing NTP
 # Usage
 ~other
 
+# Packages Used
+Python ~
+Golang ~
+
 # References
 ~other
 

