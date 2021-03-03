@@ -1,4 +1,4 @@
-package server
+package listner
 
 import (
 	"mesa/client/pkg/agent"
@@ -8,19 +8,19 @@ import (
 //sniff for NTP traffic
 //buffer?
 
-
+func StartSniffer() {
+	
+}
 
 //encode/decode/craft packets
 /*
-func encode(data string) Packet { //fix args
+func Encode(data string) Packet { //fix args
 
 }*/
 
-func decode(packet Packet) string {
+func Decode(packet Packet) string {
 
 }
-
-func 
 
 
 //send traffic

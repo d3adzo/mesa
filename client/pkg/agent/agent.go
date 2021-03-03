@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"os/exec"
+	"strings"
+
+	//"os/exec"
 	"runtime"
+
+	//"github.com/google/gopacket/pcap"
 )
 
+//Agent information
 type Agent struct {
 	OpSys string
 	ShellType string
@@ -17,8 +22,8 @@ type Agent struct {
 	MyIP []byte
 }
 
-
-func DetectOS() (string, string, string) { //detects which OS the agent is on
+//DetectOS - detects which OS agent is running on
+func DetectOS() (string, string, string) { 
 	sys := "Unknown"
 	shell := "temp"
 	flag := "temp"
@@ -42,24 +47,38 @@ func DetectOS() (string, string, string) { //detects which OS the agent is on
 	return sys, shell, flag
 }
 
-
-func GetNetAdapter(shellType string, shellFlag string) (string) { //gets the network interface of the system
-	var cmd string
-	if shellFlag == "/c" {
-		cmd = "ipconfig"
-	} else {
-		cmd = "ifconfig" //TODO change to ip a later
-	}
-	output,err := exec.Command(shellType, shellFlag, cmd).Output()
-	if err != nil {
-		fmt.Println("command couldn't run")
-	}
-	var final = string(output)
-	fmt.Println(final)
+//GetNetAdapter - gets network interface of agent
+func GetNetAdapter() (string) { //gets the network interface of the system
 	
-	return final
+
+	return "nil"
+	
+	var final string
+	potentials := [4]string {"eth0", "en0", "ens33", "Ethernet"}
+
+	devices,err := net.Interfaces()
+
+
+	if err != nil {
+		fmt.Println("error gathering nics")
+	}
+
+	final = "eth0" //default
+	for _, device := range devices {
+		for i:=0; i < len(potentials); i++{
+			if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
+				final = device.Name
+				goto End
+			}
+		}
+	}
+	End:
+		fmt.Println(final)
+		return final
+		
 }
 
+//GetServerIP - gets IP address of NTP server
 func GetServerIP() ([]byte) {
 	input := os.Args[1]
 	addr := net.ParseIP(input) //syntax might be wrong
@@ -75,13 +94,28 @@ func GetServerIP() ([]byte) {
 	return addr
 }
 
-func GetMyIP(iface string) ([]byte) { 
-	//fmt.Println(iface)
-	addr := net.ParseIP(iface)
-	return addr
-}
+//GetMyIP - gets local IP 
+func GetMyIP() ([]byte) { 
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
+		os.Exit(1)
+	}
+
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				fmt.Println(ipnet.IP.String())
+				return ipnet.IP
+			}
+		}
+	}
+	return nil
+} //function code taken from github.com/emmuanuel/DiscordGo
 
 
+
+//Setup - sets up NTP configurations based on OS
 func Setup(agent Agent) { //set up NTP configurations based on opsys, adds firewall rule every 5 min?
 	fmt.Println("lol")
 }//return 0 if everything set up, 1 otherwise, try again?

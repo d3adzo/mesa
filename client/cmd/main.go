@@ -21,9 +21,9 @@ var newAgent agent.Agent
 func init(){
     newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
-	newAgent.IFace = agent.GetNetAdapter(newAgent.ShellType, newAgent.ShellFlag)
+	newAgent.IFace = agent.GetNetAdapter()
 	newAgent.ServerIP = agent.GetServerIP()
-	//newAgent.MyIP = agent.GetMyIP(newAgent.IFace)
+	newAgent.MyIP = agent.GetMyIP()
 }
 
 func main() {
