@@ -10,9 +10,8 @@ from termcolor import colored
 from os import system
 import ipaddress
 
-TS = teamserver.Teamserver() #setup NTP and pulls from db
 
-def mesaPrompt(): #TS is teamserver object
+def mesaPrompt(TS): #TS is teamserver object
     f = open("textfiles/logo.txt", "r")
     reading = f.read()
     print(colored(reading, "red"))

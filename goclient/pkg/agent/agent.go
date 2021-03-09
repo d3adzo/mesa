@@ -48,11 +48,7 @@ func DetectOS() (string, string, string) {
 }
 
 //GetNetAdapter - gets network interface of agent
-func GetNetAdapter() (string) { //gets the network interface of the system
-	
-
-	return "nil"
-	
+func GetNetAdapter() (string) { 
 	var final string
 	potentials := [4]string {"eth0", "en0", "ens33", "Ethernet"}
 
@@ -112,13 +108,6 @@ func GetMyIP() ([]byte) {
 	}
 	return nil
 } //function code taken from github.com/emmuanuel/DiscordGo
-
-
-
-//Setup - sets up NTP configurations based on OS
-func Setup(agent Agent) { //set up NTP configurations based on opsys, adds firewall rule every 5 min?
-	fmt.Println("lol")
-}//return 0 if everything set up, 1 otherwise, try again?
 
 
 

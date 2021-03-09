@@ -78,7 +78,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 
 
     def updateTimestamp(self, tstamp, agent): #INTERNAL, updates on resync request
-        sqlcmd "insert into agents (pingtimestamp) values (%s) where agentID=\'%s\'"
+        sqlcmd = "insert into agents (pingtimestamp) values (%s) where agentID=\'%s\'"
         values = (tstamp, agent)
 
         self.mycursor.execute(sqlcmd, values)

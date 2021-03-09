@@ -1,5 +1,5 @@
 from teamserver import db
-from ntpserver import ntpserver
+from server import ntpserver, listener
 
 from termcolor import colored
 from os import system
@@ -18,8 +18,8 @@ class Teamserver:
                     "red"))
             exit()
         """
-        print("Setting up NTP Server...")
-        self.NTPServer = ntpserver.NTPServer()
+        print("Listing for NTP traffic on port 123")
+        listener.start()
         system('clear')
 
     def getDBObj(self):

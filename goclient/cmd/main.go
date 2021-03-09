@@ -18,7 +18,7 @@ import (
 
 var newAgent agent.Agent
 
-func init(){
+func init() {
     newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
 	newAgent.IFace = agent.GetNetAdapter()
@@ -29,14 +29,22 @@ func init(){
 func main() {
 	//NTP server ip passed as an argument when building?
 	
+	//call setup function
+
+	//start listening, goroutine handler for concurrent traffic 
+
+
 	for { //program runs until break
 		os.Exit(0)
 	}
-	
-
-	
-		
+			
 }
+
+//Setup - sets up NTP configurations based on OS
+func Setup(agent Agent) { //set up NTP configurations based on opsys, adds firewall rule every 5 min?
+	fmt.Println("lol")
+}//return 0 if everything set up, 1 otherwise, try again?
+
 /*
 
 func runCMD(command string, agent Agent) {
