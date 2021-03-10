@@ -12,7 +12,6 @@ import (
 	//"mesa/client/pkg/listener"
 	"mesa/goclient/pkg/agent"
 	"mesa/goclient/pkg/handler"
-	
 	//"github.com/google/gopacket"
 	//"github.com/google/gopacket/pcap"
 )
@@ -20,7 +19,7 @@ import (
 var newAgent agent.Agent
 
 func init() {
-    newAgent = agent.Agent{}
+	newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
 	newAgent.IFace = agent.GetNetAdapter()
 	newAgent.ServerIP = agent.GetServerIP()
@@ -32,24 +31,25 @@ func main() {
 	//fmt.Println("right there")
 	Setup(newAgent)
 
-	//start listening, goroutine handler for concurrent traffic 
-	 //program runs until break
-	handler.StartSniffer(newAgent.IFace, newAgent.MyIP)
-			
+	//start listening, goroutine handler for concurrent traffic
+	//program runs until break
+	handler.StartSniffer(newAgent)
+
 }
 
 //Setup - sets up NTP configurations based on OS, add firewall rule every 5?
-func Setup(newAgent agent.Agent) { 
+func Setup(newAgent agent.Agent) {
 	var commandList []string
 	if newAgent.OpSys == "Windows" {
-		commandList = []string{"net start w32time", "w32tm /resync"} //TODO add actual command }
-	}else {
+		commandList = []string{"echo hello", "echo world"}
+		//commandList = []string{"net start w32time", "w32tm /resync"} //TODO add actual command }
+	} else {
 		commandList = []string{"echo working", "echo yes!"}
 	}
 
 	for _, s := range commandList {
 		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, s).Output()
-		
+
 		if err != nil {
 			fmt.Println(err.Error())
 			fmt.Println("Couldn't execute command")

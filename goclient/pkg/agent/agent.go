@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"runtime"
+	"strings"
 )
 
 //Agent information
 type Agent struct {
-	OpSys string
+	OpSys     string
 	ShellType string
 	ShellFlag string
-	IFace string
-	ServerIP []byte
-	MyIP []byte
+	IFace     string
+	ServerIP  []byte
+	MyIP      []byte
 }
 
 //DetectOS - detects which OS agent is running on
-func DetectOS() (string, string, string) { 
+func DetectOS() (string, string, string) {
 	sys := "Unknown"
 	shell := "temp"
 	flag := "temp"
@@ -44,12 +44,11 @@ func DetectOS() (string, string, string) {
 }
 
 //GetNetAdapter - gets network interface of agent
-func GetNetAdapter() (string) { 
+func GetNetAdapter() string {
 	var final string
-	potentials := [4]string {"eth0", "en0", "ens33", "Ethernet"}
+	potentials := [4]string{"eth0", "en0", "ens33", "Ethernet"}
 
-	devices,err := net.Interfaces()
-
+	devices, err := net.Interfaces()
 
 	if err != nil {
 		fmt.Println("error gathering nics")
@@ -57,21 +56,21 @@ func GetNetAdapter() (string) {
 
 	final = "eth0" //default
 	for _, device := range devices {
-		for i:=0; i < len(potentials); i++{
+		for i := 0; i < len(potentials); i++ {
 			if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
 				final = device.Name
 				goto End
 			}
 		}
 	}
-	End:
-		fmt.Println(final)
-		return final
-		
+End:
+	fmt.Println(final)
+	return final
+
 }
 
 //GetServerIP - gets IP address of NTP server
-func GetServerIP() ([]byte) {
+func GetServerIP() []byte {
 	input := os.Args[1]
 	addr := net.ParseIP(input) //syntax might be wrong
 
@@ -81,13 +80,13 @@ func GetServerIP() ([]byte) {
 		os.Exit(1)
 	} else {
 		fmt.Println("The address is ", addr.String())
-		
+
 	}
 	return addr
 }
 
-//GetMyIP - gets local IP 
-func GetMyIP() ([]byte) { 
+//GetMyIP - gets local IP
+func GetMyIP() []byte {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
@@ -104,6 +103,3 @@ func GetMyIP() ([]byte) {
 	}
 	return nil
 } //function code taken from github.com/emmuanuel/DiscordGo
-
-
-
