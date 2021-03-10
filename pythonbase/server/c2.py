@@ -10,7 +10,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
         iPacket.sendIdPacket()
 
     else:
-        data = tsOBJ.getDBObj().pullSpecific(destGroup, endpoint)
+        data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
             print(f"Sending {refId} to {ip[0]} ({endpoint})")
 
@@ -19,14 +19,14 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
 
 
 #send command via NTP message, craft mal packet
-def sendCMD(tsOBJ, cmd, destGroup, endpoint): #
+def sendCMD(tsObj, cmd, destGroup, endpoint): #
     if destGroup == "agent": 
         print(f"Sending \"{cmd}\" to ({endpoint})")
         cPacket = packets.CommandPacket(endpoint, cmd)
         cPacket.sendCommandPacket()
 
     else:
-        data = tsOBJ.getDBObj().pullSpecific(destGroup, endpoint)
+        data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
             print(f"Sending \"{cmd}\" to {ip[0]} ({endpoint})")
 

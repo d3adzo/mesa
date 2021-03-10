@@ -5,11 +5,7 @@ import (
 	"net"
 	"os"
 	"strings"
-
-	//"os/exec"
 	"runtime"
-
-	//"github.com/google/gopacket/pcap"
 )
 
 //Agent information

@@ -10,8 +10,10 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         #otherwise creates database and tables
         print("Setting up DB...")
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        username = input("Enter MySQL username: ")
-        password = getpass.getpass(prompt="Enter MySQL password: ")
+        #username = input("Enter MySQL username: ")
+        #password = getpass.getpass(prompt="Enter MySQL password: ")
+        username = "root"
+        password = "mesa"
 
         self.mydb = mysql.connector.connect(
             host="localhost",
@@ -85,6 +87,11 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mydb.commit()
 
         #no print statement on resync?
+
+    def describe(self):
+        self.mycursor.execute("desc agents")
+        for value in self.mycursor.fetchall():
+            print(value)
 
 
     #STATUS CHECKS

@@ -31,26 +31,29 @@ def mesaPrompt(TS): #TS is teamserver object
             TS.displayBoard()
 
         elif user_input == "db":
-            dbPrompt()
+            dbPrompt(TS)
 
-        elif user_input.split(' ')[0] == "interact": #TODO add check to make sure ip/os/service given exists in DB
+        elif "interact" in user_input: #TODO add check to make sure ip/os/service given exists in DB
             arr = user_input.split(' ')
+        #try:
             if arr[1] == "agent" or arr[1] == "a":
-                interactPrompt("agent", arr[2])
+                interactPrompt("agent", arr[2], TS)
 
             elif arr[1] == "os" or arr[1] == "o":
-                interactPrompt("os", arr[2])
+                interactPrompt("os", arr[2], TS)
 
             elif arr[1] == "service" or arr[1] == "s":
-                interactPrompt("service", arr[2])
+                interactPrompt("service", arr[2], TS)
 
             else:
                 print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>", 'yellow'))
+        #except:
+            #print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>", 'yellow'))
         
         elif user_input == "clear":
             system('clear')
 
-        elif user_input == "help":
+        elif user_input == "help" or user_input == "ls":
             print('Base Command List')
             print(colored(" agents ~ display the board of agent entries.\n "
                             "db ~ enter the database subprompt. add/delete/edit entries here.\n "
@@ -74,9 +77,9 @@ def mesaPrompt(TS): #TS is teamserver object
             print(colored('Base command not recognized. Enter \"help\" for command list.', 'red'))
 
 
-def dbPrompt():
+def dbPrompt(TS):
     #TODO verify ip/service/os exists in db
-    dbCMDs = ['group', 'list', 'removeall', 'help', 'back']
+    dbCMDs = ['group', 'list', 'removeall', 'help', 'meta', 'back']
     dbCompleter = WordCompleter(dbCMDs,
                                 ignore_case=True)
     while True:
@@ -86,8 +89,12 @@ def dbPrompt():
                              completer=dbCompleter
                              )).lower()
 
-        if user_input == "group":
-            TS.getDBObj().addGrouping(ip, identifier)
+        if user_input.split(' ')[0] == "group":
+            arr = user_input.split(' ')
+            try:
+                TS.getDBObj().addGrouping(arr[1], arr[2]) #TODO add ip validation
+            except:
+                print(colored("Incorrect syntax. Should be \'group <ip> <serviceName>\'", 'yellow'))
 
         elif user_input == "list":
             TS.displayBoard()
@@ -100,16 +107,19 @@ def dbPrompt():
             elif confirmation == "n":
                 pass #back to prompt
 
-        elif user_input == "help":
+        elif user_input == "help" or user_input == "ls":
             print('DB Subcommand List')
             print(colored(" group <ip> <serviceName> ~ add a service identifier to an agent.\n "
                           "list ~ list all agent entries.\n " 
                           "removeall ~ remove all agents from the database.\n " #TODO only works on agents that are dead? what if i delete one and then it pings?
+                          "meta ~ describe the agent tables metadata.\n "
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
                           'yellow'))
 
-        elif user_input == "back":
+        elif user_input == "meta":
+            TS.getDBObj().describe()
+        elif user_input == "back" or user_input == "exit":
             return
         elif user_input == "":
             pass #do nothing
@@ -119,7 +129,7 @@ def dbPrompt():
             print(colored('DB subcommand not recognized. Enter \"help\" for list of DB subcommands.', 'red'))
 
 
-def interactPrompt(interactType, id):
+def interactPrompt(interactType, id, TS):
     interactCMDs = ['ping', 'kill', 'cmd', 'help', 'back']
     interactCompleter = WordCompleter(interactCMDs,
                                 ignore_case=True)
@@ -131,28 +141,24 @@ def interactPrompt(interactType, id):
                              )).lower()
         #submenu, add/del/listAgents/agentCmdOutput/removeall/pull(from existing, maybe does this auto.)/back
         if user_input == "ping":
-            pass  #ping agent
-            #TR: craft IDPacket with PING refid
-            #c2: send packet to selected client
+            c2.sendRefCMD(TS, interactType, id, "PING")
             #C: see refid ping
             #C: send resync request
-            #NTPS: receive resync req/ping 
-            #?: update timestamp and enter into db alive status
+            #listener/NTPS: receive resync req/ping 
+            #TS/DB: update timestamp and enter into db alive status, create new entry if IP does not exist
             #NTPS: send actual time update packet
-            c2.sendRefCMD(tsObj, interactType, id, "PING")
 
         elif user_input == "kill": 
-            pass  #send agent kill command, y/n confirmation
             confirmation = (input("Confirm (y/n)?")).lower()
             if confirmation == "y":
-                c2.sendRefCMD(tsObj, interactType, id, "KILL")
-            elif confirmation == "n":
+                c2.sendRefCMD(TS, interactType, id, "KILL")
+            else:
                 continue #back to interact prompt
 
         elif user_input == "cmd":
-            cmdPrompt(interactType, id)
+            cmdPrompt(interactType, id, TS)
 
-        elif user_input == "help":
+        elif user_input == "help" or user_input == "ls":
             print('Interact Subcommand List')
             print(colored(" ping ~ ping agent.\n "
                           "kill ~ send kill command to agent. confirmed with y/n.\n "
@@ -161,7 +167,7 @@ def interactPrompt(interactType, id):
                           "back ~ return to the main prompt.",
                           'yellow'))
 
-        elif user_input == "back":
+        elif user_input == "back" or user_input == "exit":
             return 
         elif user_input == "":
             pass #do nothing
@@ -171,7 +177,7 @@ def interactPrompt(interactType, id):
             print(colored('Interact subcommand not recognized. Enter \"help\" for list of Interact subcommands.', 'red'))
 
 
-def cmdPrompt(interactType, id):
+def cmdPrompt(interactType, id, TS):
     cmds = ['help','back']
     cmdCompleter = WordCompleter(cmds,
                                 ignore_case=True)
@@ -182,23 +188,21 @@ def cmdPrompt(interactType, id):
                              completer=cmdCompleter
                              )).lower()
 
-        if user_input == "help":
+        if user_input == "help" or user_input == "ls":
             print('Subcommand List')
             print(colored(" <CMD> ~ send CMD to agent.\n "
                           "help ~ display this list of commands.\n "
                           "back ~ return to the interact prompt.",
                           'yellow'))
-        elif user_input == "back":
+        elif user_input == "back" or user_input == "exit":
             return
         elif user_input == "":
             pass #do nothing
         elif user_input == "clear":
             system('clear')
         else:
-            c2.sendCMD(TS, user_input, interactType, id)
-            pass #TODO what about running exes/commands that hang?s
+            c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?s
             #S: encode command
-            #TR: create commandpacket with encoded command
             #S: send commandpacket to selected client
             #C: raw socket looking for identifier (ref id comd?), parse command
             #C: run command
@@ -206,10 +210,3 @@ def cmdPrompt(interactType, id):
             #S: decode output
             #S: send output to TS
             #TS: print output in prompt
-
-    #create c2 objs and connect them to
-    #establish what c2s will exist, connect to teamserver obj
-    #set up teamserver obj w c2 info
-
-    #setup DB?
-    #setup beacon graphing

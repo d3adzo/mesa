@@ -19,7 +19,7 @@ class Teamserver:
             exit()
         """
         print("Listing for NTP traffic on port 123")
-        listener.start()
+        #listener.start()
         system('clear')
 
     def getDBObj(self):

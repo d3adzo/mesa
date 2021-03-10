@@ -1,17 +1,18 @@
 package main
 
 import (
-	//"fmt"
-	"os"
-	//"os/exec"
+	"fmt"
+	//"os"
+	"os/exec"
 	//"strings"
 	//"bytes"
 	//"log"
 
 	//"mesa/client/pkg/ntppacket"
 	//"mesa/client/pkg/listener"
-	"mesa/client/pkg/agent"
-
+	"mesa/goclient/pkg/agent"
+	"mesa/goclient/pkg/handler"
+	
 	//"github.com/google/gopacket"
 	//"github.com/google/gopacket/pcap"
 )
@@ -27,23 +28,37 @@ func init() {
 }
 
 func main() {
-	//NTP server ip passed as an argument when building?
-	
-	//call setup function
+	//NTP server ip passed as an argument when building? yes
+	//fmt.Println("right there")
+	Setup(newAgent)
 
 	//start listening, goroutine handler for concurrent traffic 
-
-
-	for { //program runs until break
-		os.Exit(0)
-	}
+	 //program runs until break
+	handler.StartSniffer(newAgent.IFace, newAgent.MyIP)
 			
 }
 
-//Setup - sets up NTP configurations based on OS
-func Setup(agent Agent) { //set up NTP configurations based on opsys, adds firewall rule every 5 min?
-	fmt.Println("lol")
-}//return 0 if everything set up, 1 otherwise, try again?
+//Setup - sets up NTP configurations based on OS, add firewall rule every 5?
+func Setup(newAgent agent.Agent) { 
+	var commandList []string
+	if newAgent.OpSys == "Windows" {
+		commandList = []string{"net start w32time", "w32tm /resync"} //TODO add actual command }
+	}else {
+		commandList = []string{"echo working", "echo yes!"}
+	}
+
+	for _, s := range commandList {
+		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, s).Output()
+		
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("Couldn't execute command")
+		}
+
+		fmt.Println(string(output))
+	}
+
+}
 
 /*
 

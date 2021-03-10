@@ -1,5 +1,5 @@
 import datetime
-from scapy.all import IP, UDP, NTP
+from scapy.all import IP, UDP, NTP, send
 
 class Packet:
     def __init__(self, destination):
@@ -14,7 +14,7 @@ class NTPPacket(Packet):
 
     def sendTimePacket(self):
         pass 
-        #refId = GPS
+        #refId = GPS ?
         #use actual NTP scapy
 
    
@@ -41,8 +41,9 @@ class CommandPacket(Packet):
 
             ntpPayload = self.baseline + refId + ucode +"\x00"*(32-len(cmdArr[ctr]))
             packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(ntpPayload)
-
+            
             send(packet)
+
 
 
 class IDPacket(Packet):
@@ -52,7 +53,9 @@ class IDPacket(Packet):
 
 
     def sendIdPacket(self):
-        payload = self.baseline + str(self.refId.encode('utf-8').strip('b\'')) + 32*"\x00"
+        payload = self.baseline
+        payload += str(self.refId.encode('utf-8')).strip('b\'')
+        payload += 32*"\x00"
         packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(payload)
 
         send(packet)
