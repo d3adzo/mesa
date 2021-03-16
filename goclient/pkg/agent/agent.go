@@ -71,7 +71,7 @@ func GetNetAdapter() (string) {
 }
 
 //GetServerIP - gets IP address of NTP server
-func GetServerIP() ([]byte) {
+func GetServerIP() ([]byte) { //TODO FIX THIS
 	input := os.Args[1]
 	addr := net.ParseIP(input) //syntax might be wrong
 

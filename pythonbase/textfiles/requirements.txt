@@ -1,0 +1,3 @@
+scapy
+prompt_toolkit
+termcolor
