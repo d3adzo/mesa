@@ -1,11 +1,9 @@
 package handler
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"mesa/goclient/pkg/agent"
-	"os/exec"
 
 	//"mesa/goclient/pkg/agent"
 
@@ -17,28 +15,8 @@ import (
 //buffer?
 
 func StartSniffer(newAgent agent.Agent) {
-	devices, err := pcap.FindAllDevs()
-	if err != nil {
-		fmt.Println("nothing")
-	}
-
-	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "ipconfig /all").Output() //getting ethernet description for pcap
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("Couldn't execute command")
-	}
-
-	fmt.Println(string(output))
-
-	for _, device := range devices {
-		if device.Description == string(output) {
-			//fix tomorrow
-		}
-		fmt.Println("\nName: ", device.Name, device.Description)
-	}
-
 	var (
-		iface  = "TEMP"
+		iface  = newAgent.IFace
 		buffer = int32(1600)
 		filter = "udp and port 123" //More?
 	)
@@ -62,19 +40,7 @@ func StartSniffer(newAgent agent.Agent) {
 
 func harvestInfo(packet gopacket.Packet) {
 	app := packet.ApplicationLayer()
-	if app != nil {
-		payload := app.Payload()
-		dst := packet.NetworkLayer().NetworkFlow().Dst()
-		if bytes.Contains(payload, []byte("PING")) {
-			fmt.Print(dst, "  ->  ", string(payload))
-		} else if bytes.Contains(payload, []byte("PASS")) {
-			fmt.Print(dst, " -> ", string(payload))
-		}
-	}
-}
-
-func newConnection() {
-	fmt.Println("woah it actually got something")
+	fmt.Println(app.LayerContents())
 }
 
 //encode/decode/craft packets

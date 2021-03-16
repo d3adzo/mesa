@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 )
@@ -44,8 +45,22 @@ func DetectOS() (string, string, string) {
 }
 
 //GetNetAdapter - gets network interface of agent
-func GetNetAdapter() string {
-	var final string
+func GetNetAdapter(newAgent Agent) string {
+	var iface string
+
+	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "getmac /fo csv /v | findstr \"Ethernet\"").Output() //getting ethernet description for pcap
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("Couldn't execute command")
+	}
+	startIndex := strings.Index(string(output), "_{")
+	finalIndex := strings.Index(string(output), "}")
+
+	temp := string(output)[startIndex+2 : finalIndex]
+	final := "\\Device\\NPF_{" + temp + "}"
+
+	fmt.Println(final)
+
 	potentials := [4]string{"eth0", "en0", "ens33", "Ethernet"}
 
 	devices, err := net.Interfaces()
@@ -54,18 +69,18 @@ func GetNetAdapter() string {
 		fmt.Println("error gathering nics")
 	}
 
-	final = "eth0" //default
+	iface = "eth0" //default
 	for _, device := range devices {
 		for i := 0; i < len(potentials); i++ {
 			if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
-				final = device.Name
+				iface = device.Name
 				goto End
 			}
 		}
 	}
 End:
-	fmt.Println(final)
-	return final
+	fmt.Println(iface)
+	return iface
 
 }
 
