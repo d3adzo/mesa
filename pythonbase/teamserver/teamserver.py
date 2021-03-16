@@ -18,7 +18,7 @@ class Teamserver:
                     "red"))
             exit()
         """
-        print("Listing for NTP traffic on port 123")
+        print("Listening for NTP traffic on port 123")
         #listener.start()
         system('clear')
 

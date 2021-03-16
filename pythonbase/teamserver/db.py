@@ -29,7 +29,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 
         self.mycursor.execute("create table if not exists agents("
                          "agentID varchar(16) not null primary key,"
-                         "os varchar(255) not null,"
+                         "os varchar(255) null,"
                          "service varchar(255) null,"
                          "status varchar(10) not null default \'MIA\',"
                          "pingtimestamp timestamp null)")
@@ -64,12 +64,12 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         return self.mycursor.fetchall()
 
 
-    def addGrouping(self, ip, grouping): #PUBLIC
-        sqlcmd = "insert into agents (service) values (%s) where agentID=\'%s\'"
-        values = (grouping, str(ip))
+    def addGrouping(self, ip, typ, grouping): #PUBLIC
+        sqlcmd = "insert into agents (%s) values (%s) where agentID=\'%s\'"
+        values = (typ, grouping, str(ip))
         self.mycursor.execute(sqlcmd, values)
 
-        print(f"Identifier {grouping} added to {str(ip)}!\n")
+        print(f"Identifier \"{grouping}\" added to {str(ip)}!\n")
 
 
     def removeAllAgents(self): #PUBLIC, removes all agents
@@ -143,7 +143,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 | Field         | Type         | Null | Key | Default | Extra |
 +---------------+--------------+------+-----+---------+-------+
 | agentID       | varchar(16)  | NO   | PRI | NULL    |       |
-| os            | varchar(255) | NO   |     | NULL    |       |
+| os            | varchar(255) | YES  |     | NULL    |       |
 | service       | varchar(255) | YES  |     | NULL    |       |
 | status        | varchar(10)  | NO   |     | MIA     |       |
 | pingtimestamp | timestamp    | YES  |     | NULL    |       |

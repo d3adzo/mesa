@@ -4,6 +4,6 @@ __pycache__/
 .DS_Store
 .gitignore
 .gitattributes
-textfiles/history.txt
+pythonbase/textfiles/history.txt
 **/pycache.sh
 todo.txt

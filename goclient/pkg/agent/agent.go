@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
+	"os/exec"
 	"runtime"
+	"strings"
 )
 
 //Agent information
 type Agent struct {
-	OpSys string
+	OpSys     string
 	ShellType string
 	ShellFlag string
-	IFace string
-	ServerIP []byte
-	MyIP []byte
+	IFace     string
+	ServerIP  []byte
+	MyIP      []byte
 }
 
 //DetectOS - detects which OS agent is running on
-func DetectOS() (string, string, string) { 
+func DetectOS() (string, string, string) {
 	sys := "Unknown"
 	shell := "temp"
 	flag := "temp"
@@ -44,34 +45,48 @@ func DetectOS() (string, string, string) {
 }
 
 //GetNetAdapter - gets network interface of agent
-func GetNetAdapter() (string) { 
-	var final string
-	potentials := [4]string {"eth0", "en0", "ens33", "Ethernet"}
+func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better way of doing this
+	var iface string
+	if runtime.GOOS == "windows" {
+		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "getmac /fo csv /v | findstr \"Ethernet\"").Output() //getting ethernet description for pcap
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("Couldn't execute command")
+		}
+		startIndex := strings.Index(string(output), "_{")
+		finalIndex := strings.Index(string(output), "}")
 
-	devices,err := net.Interfaces()
+		temp := string(output)[startIndex+2 : finalIndex]
+		iface := "\\Device\\NPF_{" + temp + "}"
 
+		return iface
+	} else {
+		potentials := [4]string{"eth0", "en0", "ens33"}
 
-	if err != nil {
-		fmt.Println("error gathering nics")
-	}
+		devices, err := net.Interfaces()
 
-	final = "eth0" //default
-	for _, device := range devices {
-		for i:=0; i < len(potentials); i++{
-			if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
-				final = device.Name
-				goto End
+		if err != nil {
+			fmt.Println("error gathering nics")
+		}
+
+		iface = "eth0" //default
+		for _, device := range devices {
+			for i := 0; i < len(potentials); i++ {
+				fmt.Println(device)
+				if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
+					iface = device.Name
+					goto End
+				}
 			}
 		}
 	}
-	End:
-		fmt.Println(final)
-		return final
-		
+End:
+	fmt.Println(iface)
+	return iface
 }
 
 //GetServerIP - gets IP address of NTP server
-func GetServerIP() ([]byte) { //TODO FIX THIS
+func GetServerIP() []byte { //TODO FIX THIS
 	input := os.Args[1]
 	addr := net.ParseIP(input) //syntax might be wrong
 
@@ -81,13 +96,13 @@ func GetServerIP() ([]byte) { //TODO FIX THIS
 		os.Exit(1)
 	} else {
 		fmt.Println("The address is ", addr.String())
-		
+
 	}
 	return addr
 }
 
-//GetMyIP - gets local IP 
-func GetMyIP() ([]byte) { 
+//GetMyIP - gets local IP
+func GetMyIP() []byte {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		os.Stderr.WriteString("Oops: " + err.Error() + "\n")
@@ -104,6 +119,3 @@ func GetMyIP() ([]byte) {
 	}
 	return nil
 } //function code taken from github.com/emmuanuel/DiscordGo
-
-
-

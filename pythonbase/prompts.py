@@ -53,7 +53,7 @@ def mesaPrompt(TS): #TS is teamserver object
         elif user_input == "clear":
             system('clear')
 
-        elif user_input == "help" or user_input == "ls":
+        elif user_input == "help":
             print('Base Command List')
             print(colored(" agents ~ display the board of agent entries.\n "
                             "db ~ enter the database subprompt. add/delete/edit entries here.\n "
@@ -92,9 +92,9 @@ def dbPrompt(TS):
         if user_input.split(' ')[0] == "group":
             arr = user_input.split(' ')
             try:
-                TS.getDBObj().addGrouping(arr[1], arr[2]) #TODO add ip validation
+                TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) #TODO add ip validation
             except:
-                print(colored("Incorrect syntax. Should be \'group <ip> <serviceName>\'", 'yellow'))
+                print(colored("Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
 
         elif user_input == "list":
             TS.displayBoard()
@@ -107,9 +107,9 @@ def dbPrompt(TS):
             elif confirmation == "n":
                 pass #back to prompt
 
-        elif user_input == "help" or user_input == "ls":
+        elif user_input == "help":
             print('DB Subcommand List')
-            print(colored(" group <ip> <serviceName> ~ add a service identifier to an agent.\n "
+            print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent.\n "
                           "list ~ list all agent entries.\n " 
                           "removeall ~ remove all agents from the database.\n " #TODO only works on agents that are dead? what if i delete one and then it pings?
                           "meta ~ describe the agent tables metadata.\n "
@@ -149,7 +149,7 @@ def interactPrompt(interactType, id, TS):
             #NTPS: send actual time update packet
 
         elif user_input == "kill": 
-            confirmation = (input("Confirm (y/n)?")).lower()
+            confirmation = (input("Confirm (y/n)? ")).lower()
             if confirmation == "y":
                 c2.sendRefCMD(TS, interactType, id, "KILL")
             else:
@@ -158,7 +158,7 @@ def interactPrompt(interactType, id, TS):
         elif user_input == "cmd":
             cmdPrompt(interactType, id, TS)
 
-        elif user_input == "help" or user_input == "ls":
+        elif user_input == "help":
             print('Interact Subcommand List')
             print(colored(" ping ~ ping agent.\n "
                           "kill ~ send kill command to agent. confirmed with y/n.\n "
@@ -188,7 +188,7 @@ def cmdPrompt(interactType, id, TS):
                              completer=cmdCompleter
                              )).lower()
 
-        if user_input == "help" or user_input == "ls":
+        if user_input == "help":
             print('Subcommand List')
             print(colored(" <CMD> ~ send CMD to agent.\n "
                           "help ~ display this list of commands.\n "

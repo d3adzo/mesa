@@ -37,12 +37,12 @@ class CommandPacket(Packet):
             else:
                 refId = str("COMD".encode('utf-8')).strip('b\'')  #Command Finished
 
-            ucode = str(cmdArr[ctr].encode("utf-8")).strip('b\'') #Encoded command
+            ucode = str(cmdArr[ctr].encode("utf-8")).strip('b\'').strip("\"") #Encoded command
 
             ntpPayload = self.baseline + refId + ucode +"\x00"*(32-len(cmdArr[ctr]))
             packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(ntpPayload)
             
-            send(packet)
+            send(packet, verbose=0)
 
 
 
@@ -58,5 +58,5 @@ class IDPacket(Packet):
         payload += 32*"\x00"
         packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(payload)
 
-        send(packet)
+        send(packet, verbose=0)
     
