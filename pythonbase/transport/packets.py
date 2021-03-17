@@ -59,4 +59,8 @@ class IDPacket(Packet):
         packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(payload)
 
         send(packet, verbose=0)
+
+
+
+#TODO COMO ref id  -> output by client
     

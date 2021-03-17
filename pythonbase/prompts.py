@@ -68,7 +68,8 @@ def mesaPrompt(TS): #TS is teamserver object
             exit()
 
         elif user_input == "shutdown":
-            exit() #for now
+            TS.shutdown()
+            #exit() #for now
             pass  # full cleanup process and exit 
             #TODO clean db
         elif user_input == "":

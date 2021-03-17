@@ -3,6 +3,8 @@ from server import ntpserver, listener
 
 from termcolor import colored
 from os import system
+from threading import Thread
+#from multiprocessing import Process # -> if needs more power
 
 class Teamserver:
     def __init__(self):
@@ -19,7 +21,8 @@ class Teamserver:
             exit()
         """
         print("Listening for NTP traffic on port 123")
-        #listener.start()
+        self.thread = Thread(target=listener.start, args=(), daemon=True)
+        self.thread.start()           
         system('clear')
 
     def getDBObj(self):
@@ -37,3 +40,7 @@ class Teamserver:
     def printOutput(self): #?does this go somewhere else
         pass #print command output
         #take into account single/group (one/many) command responses
+
+    def shutdown(self):
+        self.thread.join()
+        exit(0)
