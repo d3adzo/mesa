@@ -31,15 +31,15 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
                          "agentID varchar(16) not null primary key,"
                          "os varchar(255) null,"
                          "service varchar(255) null,"
-                         "status varchar(10) not null default \'MIA\',"
+                         "status varchar(10) not null default \'ALIVE\',"
                          "pingtimestamp timestamp null)")
 
 
 
     #DB MODS
-    def addAgent(self, ip, os, timestamp): #INTERNAL, when receive first (setup) ping
-        sqlcmd = "insert into agents (agentID, os, timestamp) values (%s, %s, %s)"
-        values = (str(ip), os, str(timestamp)) #TODO make sure stamp is in correct format
+    def addAgent(self, ip, timestamp, status): #INTERNAL, when receive first (setup) ping
+        sqlcmd = "insert into agents (agentID, timestamp, status) values (%s, %s, %s)"
+        values = (str(ip), str(timestamp), status)
         
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
@@ -51,11 +51,13 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Agent {ip} deleted!\n", "yellow"))
+        print(colored(f" Agent {ip} deleted!\n", "yellow"))
 
 
     def dbPull(self): #PUBLIC
-        self.mycursor.execute("select * from agents order by service asc")
+        self.checkStatus()
+
+        self.mycursor.execute("select * from agents order by agentID asc")
         return self.mycursor.fetchall()
     
 
@@ -76,7 +78,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute("delete from agents")
 
         self.mydb.commit()
-        print(colored("All agents removed!\n", "yellow"))
+        print(colored(" All agents removed!\n", "yellow"))
 
 
     def updateTimestamp(self, tstamp, agent): #INTERNAL, updates on resync request
@@ -101,7 +103,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
                         f"where agentID =\'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Agent {ip} is MIA!\n", "yellow")) 
+        print(colored(f" Agent {ip} is MIA!\n", "yellow")) 
 
 
     def deadStatus(self, ip): #PUBLIC, after agent killed
@@ -110,25 +112,44 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
                         f"where agentID = \'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f"Agent {ip} is dead!\n", "red")) 
+        print(colored(f" Agent {ip} is dead!\n", "red")) 
 
 
-    def aliveStatus(self, ip): #INTERNAL, after receiving beacon
-        self.mycursor.execute("update agents "
-                        "set status = \'alive\'"
+    def aliveStatus(self, ip, timestamp): #INTERNAL, after receiving beacon
+        self.mycursor.execute(f"select agentID from agents where agentID = \'{ip}\'")
+        resp = self.mycursor.fetchall()
+        if resp[0] != ip:
+            self.addAgent(ip, timestamp, "ALIVE")
+        else:
+            self.mycursor.execute("update agents "
+                        f"set status, timestamp = \'alive\',\'{timestamp}\'"
                         f"where agentID = \'{ip}\'")
 
-        self.mydb.commit()
-        print(colored(f"Ping from agent {ip}!\n", "green")) 
+            self.mydb.commit()
+        
+        print(colored(f" Ping from agent {ip}!\n", "green")) 
 
 
-    def checkStatus(self):
-        #TODO how will i do this? will this run every minute? separate thread?
+    def checkStatus(self): #internal, called on each summon of the table
         #query db for list of all timestamps
         #compare current time to each one
         #if any mia, send to missingstatus method
-        #cool
-        self.mycursor.execute("select pingtimestamp from agents")
+        
+        #current = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
+        current = datetime.datetime.now()
+        plus3 = datetime.timedelta(minutes=3)
+        plus3timestamp = current + plus3
+        cutoff = str(plus3timestamp).split(".")[0] 
+
+        data = self.mycursor.execute("select pingtimestamp,agentID from agents")
+        if len(data) == 0:
+            return # skip if no agents in table
+
+        for entry in data:
+            check = entry[0].split(" ") #%Y-%m-%d %H:%M:%S
+            #TODO call self.missingstatus 
+
+
 
     #TODO add clean method. removes full db (for shutdown option)
 

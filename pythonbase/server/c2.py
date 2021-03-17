@@ -33,9 +33,14 @@ def sendCMD(tsObj, cmd, destGroup, endpoint):
 
             cPacket = packets.CommandPacket(ip[0], cmd)
             cPacket.sendCommandPacket()
-        
 
-def getCMDOutput():
-    pass #command output is passed to this and then "decoded", then printed
 
-    #TODO have an initial "ping" setup msg that populates the ip , add os/service as descriptor after
+def printOutput(datahold, ip):
+    print("output", datahold, ip) #temp
+
+
+def decode(data):
+    #TODO xor single byte decode, return data
+    strdata = data.decode('utf-8')
+
+    return strdata
