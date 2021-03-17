@@ -34,8 +34,19 @@ class Teamserver:
     #display the board of active c2s, call again to refresh
     def displayBoard(self):
         data = self.agentDB.dbPull()
-        print(data)
-        #TODO parse data into cool table
+        for entry in data:
+            if entry[3] == "DEAD":
+                color = "red"
+            elif entry[3] == "ALIVE":
+                color = "green"
+            else:
+                color = "yellow"
+
+            print(colored(" Agent ~ " + str(entry[0]) + 
+                            "\t| OS ~ " + str(entry[1]) + 
+                            "\t| Service ~ " + str(entry[2]) + 
+                            "\t| Status ~ " + str(entry[3]) + "\n"
+                            , color=color))
     
     def printOutput(self): #?does this go somewhere else
         pass #print command output

@@ -15,7 +15,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
         for ip in data:
             print(colored(f" Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
-            iPacket = packets.IDPacket(ip, refId)
+            iPacket = packets.IDPacket(ip[0], refId)
             iPacket.sendIdPacket()
 
 
@@ -31,11 +31,11 @@ def sendCMD(tsObj, cmd, destGroup, endpoint):
         for ip in data:
             print(colored(f" Sending Command \"{cmd}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
-            cPacket = packets.CommandPacket(ip, cmd)
+            cPacket = packets.CommandPacket(ip[0], cmd)
             cPacket.sendCommandPacket()
         
 
 def getCMDOutput():
     pass #command output is passed to this and then "decoded", then printed
 
-    #TODO have an initial "ping" setup msg that populates the ip and os fields, add service as descriptor after
+    #TODO have an initial "ping" setup msg that populates the ip , add os/service as descriptor after

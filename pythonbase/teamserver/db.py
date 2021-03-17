@@ -44,14 +44,14 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        print(f"Agent {ip}/{os}/{service} added!\n")
+        print(colored(f"Agent {ip}/{os}/{service} added!\n", "yellow"))
 
 
     def deleteAgent(self, ip): #INTERNAL, for kill command
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
 
         self.mydb.commit()
-        print(f"Agent {ip} deleted!\n")
+        print(colored(f"Agent {ip} deleted!\n", "yellow"))
 
 
     def dbPull(self): #PUBLIC
@@ -65,18 +65,18 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
 
 
     def addGrouping(self, ip, typ, grouping): #PUBLIC
-        sqlcmd = "insert into agents (%s) values (%s) where agentID=\'%s\'"
-        values = (typ, grouping, str(ip))
-        self.mycursor.execute(sqlcmd, values)
+        sqlcmd = f"update agents set {typ} = \'{grouping}\' where agentID = \'{str(ip)}\'"
+        self.mycursor.execute(sqlcmd)
+        self.mydb.commit()
 
-        print(f"Identifier \"{grouping}\" added to {str(ip)}!\n")
+        print(colored(f"Identifier \"{grouping}\" added to Agent {str(ip)}!\n", "yellow"))
 
 
     def removeAllAgents(self): #PUBLIC, removes all agents
         self.mycursor.execute("delete from agents")
 
         self.mydb.commit()
-        print("All agents removed!\n")
+        print(colored("All agents removed!\n", "yellow"))
 
 
     def updateTimestamp(self, tstamp, agent): #INTERNAL, updates on resync request

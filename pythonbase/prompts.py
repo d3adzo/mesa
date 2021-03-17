@@ -131,7 +131,7 @@ def dbPrompt(TS):
 
 
 def interactPrompt(interactType, id, TS):
-    interactCMDs = ['ping', 'kill', 'cmd', 'help', 'back']
+    interactCMDs = ['ping', 'kill', 'cmd', 'list', 'help', 'back']
     interactCompleter = WordCompleter(interactCMDs,
                                 ignore_case=True)
     while True:
@@ -167,6 +167,13 @@ def interactPrompt(interactType, id, TS):
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",
                           'yellow'))
+
+        elif user_input == "list":
+            if interactType == "agent":
+                print(colored(" Agent ~ " + TS.getDBObj().pullSpecific("agentid", id)[0][0]))  
+            else:
+                for entry in TS.getDBObj().pullSpecific(interactType, id):
+                    print(colored(" Agent ~ " + entry[0]))  
 
         elif user_input == "back" or user_input == "exit":
             return 
