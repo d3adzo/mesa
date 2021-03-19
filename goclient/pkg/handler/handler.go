@@ -86,11 +86,11 @@ func runCommand(msg string, newAgent agent.Agent) {
 	}
 
 	fmt.Println(string(output))
-} //should this go in agent?
+} 
 
 func resync() {
-
-} //should this go in agent?
+	
+} 
 
 func decode(content []byte) string {
 	content = bytes.Trim(content, "\x00")

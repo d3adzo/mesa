@@ -4,13 +4,11 @@ import getpass
 
 from termcolor import colored
 
-class DB: #TODO REWORK all based around beacon recieved and packet sniffing
+class DB: 
     def __init__(self):
-        #check if db exists, if so pulls data from
-        #otherwise creates database and tables
         print("Setting up DB...")
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        #username = input("Enter MySQL username: ")
+        #username = input("Enter MySQL username: ") #TODO add back
         #password = getpass.getpass(prompt="Enter MySQL password: ")
         username = "root"
         password = "mesa"
@@ -62,6 +60,8 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
     
 
     def pullSpecific(self, grouping, value): #INTERNAL, use this when sending group commands?
+        self.checkStatus()
+        
         self.mycursor.execute(f"select agentID from agents where {grouping}=\'{value}\'")
         return self.mycursor.fetchall()
 
@@ -94,6 +94,7 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         self.mycursor.execute("desc agents")
         for value in self.mycursor.fetchall():
             print(value)
+
 
 
     #STATUS CHECKS
@@ -134,24 +135,29 @@ class DB: #TODO REWORK all based around beacon recieved and packet sniffing
         #query db for list of all timestamps
         #compare current time to each one
         #if any mia, send to missingstatus method
-        
-        #current = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
-        current = datetime.datetime.now()
-        plus3 = datetime.timedelta(minutes=3)
-        plus3timestamp = current + plus3
-        cutoff = str(plus3timestamp).split(".")[0] 
+        tscurrent = datetime.datetime.now()
+        strcurrent = "{:%Y-%m-%d %H:%M:%S}".format(tscurrent)
+
+        t2 = datetime.datetime.strptime(strcurrent, "%Y-%m-%d %H:%M:%S")
 
         data = self.mycursor.execute("select pingtimestamp,agentID from agents")
         if len(data) == 0:
             return # skip if no agents in table
 
         for entry in data:
-            check = entry[0].split(" ") #%Y-%m-%d %H:%M:%S
-            #TODO call self.missingstatus 
+            check = entry[0] #%Y-%m-%d %H:%M:%S
+            t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S")
+
+            difference = t2 - t1
+
+            if difference.seconds/60 > 3.0:
+                self.missingStatus(entry[1])
 
 
+    def cleanDB(self): #EXTERNAL, called on 'shutdown'
+        self.mycursor.execute("drop table agent")
 
-    #TODO add clean method. removes full db (for shutdown option)
+
 
     #adding to db
     #given ip, os, service

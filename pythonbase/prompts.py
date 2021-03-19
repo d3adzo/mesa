@@ -35,7 +35,7 @@ def mesaPrompt(TS): #TS is teamserver object
 
         elif "interact" in user_input: #TODO add check to make sure ip/os/service given exists in DB
             arr = user_input.split(' ')
-        #try:
+        #try: #TODO uncomment this
             if arr[1] == "agent" or arr[1] == "a":
                 interactPrompt("agent", arr[2], TS)
 
@@ -112,7 +112,7 @@ def dbPrompt(TS):
             print('DB Subcommand List')
             print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent.\n "
                           "list ~ list all agent entries.\n " 
-                          "removeall ~ remove all agents from the database.\n " #TODO only works on agents that are dead? what if i delete one and then it pings?
+                          "removeall ~ remove all agents from the database.\n " 
                           "meta ~ describe the agent tables metadata.\n "
                           "help ~ display this list of commands.\n "
                           "back ~ return to the main prompt.",

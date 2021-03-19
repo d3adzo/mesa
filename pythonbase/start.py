@@ -5,8 +5,7 @@ from os import geteuid
 from teamserver import teamserver
 from threading import Thread
 
-#TODO pip3 install reqs file
-#TODO on client, make command run in background (ie linux &)
+#TODO on client, make command run in background (ie linux &)?
 
 #Entrypoint
 def main():

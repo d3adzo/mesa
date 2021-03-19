@@ -4,7 +4,7 @@ if resync is recieved, send to ntpserver.py
 if cmdoutput is received, send to c2.py
 """
 import socket
-
+import datetime
 from server import ntpserver, c2
 
 
@@ -32,7 +32,7 @@ def start(agentDB):
                     datahold = ""
 
             else: #this means resync/ping
-                timestamp = ("{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now()))
+                timestamp = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
                 ntpserver.resyncReceived(timestamp, ip, agentDB)
 
 
