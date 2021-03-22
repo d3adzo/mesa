@@ -65,7 +65,9 @@ func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better 
 
 		devices, err := net.Interfaces()
 
-		if err != nil { fmt.Println("error gathering nics") }
+		if err != nil {
+			fmt.Println("error gathering nics")
+		}
 
 		iface = "eth0" //default
 		for _, device := range devices {

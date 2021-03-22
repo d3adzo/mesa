@@ -27,12 +27,8 @@ func init() {
 }
 
 func main() {
-	//NTP server ip passed as an argument when building? yes
-	//fmt.Println("right there")
 	Setup(newAgent)
 
-	//start listening, goroutine handler for concurrent traffic
-	//program runs until break
 	handler.StartSniffer(newAgent)
 
 }
@@ -41,9 +37,15 @@ func main() {
 func Setup(newAgent agent.Agent) {
 	var commandList []string
 	if newAgent.OpSys == "Windows" {
-		commandList = []string{"net start w32time", "w32tm /resync"} //TODO add actual command }
+		commandList = []string{
+			"net start w32time",
+			"w32tm /config /syncfromflags:manual /manualpeerlist:" + string(newAgent.ServerIP),
+			"w32tm /config /update",
+			"w32tm /resync"} //TODO add firewall rule?
 	} else {
-		commandList = []string{"echo working", "echo yes!"}
+		commandList = []string{
+			"echo working", 
+			"echo yes!"} //TODO add actual command
 	}
 
 	for _, s := range commandList {

