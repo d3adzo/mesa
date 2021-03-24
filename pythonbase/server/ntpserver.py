@@ -10,7 +10,7 @@ def getTime():
 
 
 def sendTime(destination):
-    timeinfo = self.getTime()
+    timeinfo = getTime()
     nPacket = packets.NTPPacket(destination, timeinfo)
 
     nPacket.sendTimePacket()

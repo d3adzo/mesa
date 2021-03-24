@@ -4,6 +4,7 @@ from server import ntpserver, listener
 from termcolor import colored
 from os import system
 from threading import Thread
+from tabulate import tabulate
 #from multiprocessing import Process # -> if needs more power
 
 class Teamserver:
@@ -38,25 +39,19 @@ class Teamserver:
             print(colored(" No Agents in DB!\n", "red"))
             return
 
+        d = []
         for entry in data:
-            if entry[3] == "DEAD":
-                color = "red"
-            elif entry[3] == "ALIVE":
-                color = "green"
-            else:
-                color = "yellow"
-
-            print(colored(" Agent ~ " + str(entry[0]) + 
-                            "\t| OS ~ " + str(entry[1]) + 
-                            "\t| Service ~ " + str(entry[2]) + 
-                            "\t| Status ~ " + str(entry[3]) + "\n"
-                            , color=color))
+            d.append(entry)
+        
+        print("\n")
+        print(colored(tabulate(data, headers=["Agent IP", "OS", "Service", "Status", "Last Ping"]), "magenta"))
+        print("\n")
     
     
     def printOutput(self): #?does this go somewhere else
-        pass #print command output
+        pass #TODO print command output
         #take into account single/group (one/many) command responses
 
     def shutdown(self):
-        self.thread.join()
+        self.thread.join() #TODO doe this work
         exit(0)

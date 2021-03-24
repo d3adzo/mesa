@@ -35,13 +35,13 @@ class DB:
 
     #DB MODS
     def addAgent(self, ip, timestamp, status): #INTERNAL, when receive first (setup) ping
-        sqlcmd = "insert into agents (agentID, timestamp, status) values (%s, %s, %s)"
+        sqlcmd = "insert into agents (agentID, pingtimestamp, status) values (%s, %s, %s)"
         values = (str(ip), str(timestamp), status)
         
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        print(colored(f"Agent {ip}/{os}/{service} added!\n", "yellow"))
+        #print(colored(f"Agent {ip} added!\n", "yellow"))
 
 
     def deleteAgent(self, ip): #INTERNAL, for kill command
@@ -54,7 +54,7 @@ class DB:
     def dbPull(self): #PUBLIC
         self.checkStatus()
 
-        self.mycursor.execute("select * from agents order by agentID asc")
+        self.mycursor.execute("select * from agents order by service desc")
         return self.mycursor.fetchall()
     
 
@@ -66,12 +66,56 @@ class DB:
 
 
     def addGrouping(self, ip, typ, grouping): #PUBLIC
+        if "-" in ip: #EX. group 10.1-10.2.3 service ftp
+            dashIdx = ip.index("-")
+            area = 0
+            """ TODO fix this ugly ass shit
+            s="."
+            lst= []
+            for i in range(len(ip)):
+                if (ip[i] == s):
+                    lst.append(i)
+
+            if dashIdx < lst[0]: 
+                first = ip[0:dashIdx]
+                last = ip[dashIdx+1:lst[0]]
+                area = 0
+                print("0 area")
+            elif lst[0] < dashIdx and dashIdx < lst[1]: #x.1-10.x.x
+                first = ip[lst[0]+1:dashIdx]
+                last = ip[dashIdx+1:lst[1]]
+                area = 1
+                print("1 area")
+            elif lst[1] < dashIdx and dashIdx < lst[2]: #x.x.1-10.x
+                first = ip[lst[1]+1:dashIdx]
+                last = ip[dashIdx+1:lst[2]]
+                area = 2
+                print("2 area")
+            else: #x.x.x.1-10  
+                first = ip[lst[2]+1:dashIdx]
+                last = ip[dashIdx+1:]
+                area = 3
+                print("3 area")
+
+            for i in range(int(first), int(last)+1):
+                if area == 0:
+                    hold = str(i) + ip[lst[area]+1:lst[area+1]]
+                elif area == 2:
+                    hold = ip[0:lst[area]] + str(i)
+                else:
+                    hold = ip[lst[area-1]+1:] + str(i) + ip[lst[area]+1:]
+
+                print(hold)
+
+        #else:
+        """
+"""
         sqlcmd = f"update agents set {typ} = \'{grouping}\' where agentID = \'{str(ip)}\'"
         self.mycursor.execute(sqlcmd)
         self.mydb.commit()
 
-        print(colored(f"Identifier \"{grouping}\" added to Agent {str(ip)}!\n", "yellow"))
-
+        print(colored(f" Identifier \"{grouping}\" added to Agent {str(ip)}!\n", "green"))
+"""
 
     def removeAllAgents(self): #PUBLIC, removes all agents
         self.mycursor.execute("delete from agents")
@@ -103,33 +147,31 @@ class DB:
                         f"where agentID =\'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f" Agent {ip} is MIA!\n", "yellow")) 
+        #print(colored(f" Agent {ip} is MIA!\n", "yellow")) 
 
 
     def deadStatus(self, ip): #PUBLIC, after agent killed
         self.mycursor.execute("update agents "
-                        "set status = \'dead\'"
+                        "set status = \'DEAD\'"
                         f"where agentID = \'{ip}\'")
 
         self.mydb.commit()
-        print(colored(f" Agent {ip} is dead!\n", "red")) 
+       #print(colored(f" Agent {ip} is dead!\n", "red")) 
 
 
     def aliveStatus(self, ip, timestamp): #INTERNAL, after receiving beacon
         self.mycursor.execute(f"select agentID from agents where agentID = \'{ip}\'")
         resp = self.mycursor.fetchall()
-        print(resp, "resp thingy", ip)
-        if resp != None:
-            if resp[0] != ip:
-                self.addAgent(ip, timestamp, "ALIVE")
-            else:
-                self.mycursor.execute("update agents "
-                        f"set status, timestamp = \'alive\',\'{timestamp}\'"
-                        f"where agentID = \'{ip}\'")
+        if len(resp) == 0:
+            self.addAgent(ip, timestamp, "ALIVE")
+        else:
+            self.mycursor.execute("update agents "
+                    f"set status = \'ALIVE\',pingtimestamp=\'{timestamp}\' "
+                    f"where agentID = \'{ip}\'")
 
-                self.mydb.commit()
-        
-        print(colored(f" Ping from agent {ip}!\n", "green")) 
+            self.mydb.commit()
+    
+        #print(colored(f" \nPing from agent {ip}!\n", "green")) 
 
 
     def checkStatus(self): #internal, called on each summon of the table
@@ -143,11 +185,11 @@ class DB:
 
         self.mycursor.execute("select pingtimestamp,agentID from agents")
         data = self.mycursor.fetchall()
-        if data == None:
+        if len(data) == 0:
             return # skip if no agents in table
 
         for entry in data:
-            check = entry[0] #%Y-%m-%d %H:%M:%S
+            check = "{:%Y-%m-%d %H:%M:%S}".format(entry[0]) #%Y-%m-%d %H:%M:%S
             t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S") #TODO fix error here
 
             difference = t2 - t1
@@ -157,7 +199,8 @@ class DB:
 
 
     def cleanDB(self): #EXTERNAL, called on 'shutdown'
-        self.mycursor.execute("drop table agent")
+        self.mycursor.execute("drop table agents")
+        self.mycursor.execute("")
 
 
 

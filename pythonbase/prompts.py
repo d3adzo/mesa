@@ -27,7 +27,7 @@ def mesaPrompt(TS): #TS is teamserver object
                              completer=MesaCompleter
                              )).lower()
 
-        if user_input == "agents":
+        if user_input == "agents" or user_input == "list":
             TS.displayBoard()
 
         elif user_input == "db":
@@ -47,7 +47,7 @@ def mesaPrompt(TS): #TS is teamserver object
 
             else:
                 print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>", 'yellow'))
-        #except:
+        #except Exception:
             #print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>", 'yellow'))
         
         elif user_input == "clear":
@@ -78,7 +78,7 @@ def mesaPrompt(TS): #TS is teamserver object
 
 def dbPrompt(TS):
     #TODO verify ip/service/os exists in db
-    dbCMDs = ['group', 'list', 'removeall', 'help', 'meta', 'back']
+    dbCMDs = ['group', 'agents', 'removeall', 'help', 'meta', 'back']
     dbCompleter = WordCompleter(dbCMDs,
                                 ignore_case=True)
     while True:
@@ -90,12 +90,12 @@ def dbPrompt(TS):
 
         if user_input.split(' ')[0] == "group":
             arr = user_input.split(' ')
-            try:
-                TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) #TODO add ip validation
-            except:
-                print(colored("Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
+            #try:
+            TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) #TODO add ip validation
+            #except Exception:
+                #print(colored("Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
 
-        elif user_input == "list":
+        elif user_input == "agents":
             TS.displayBoard()
 
         elif user_input == "removeall":
@@ -109,7 +109,7 @@ def dbPrompt(TS):
         elif user_input == "help":
             print('DB Subcommand List')
             print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent.\n "
-                          "list ~ list all agent entries.\n " 
+                          "agents ~ list all agent entries.\n " 
                           "removeall ~ remove all agents from the database.\n " 
                           "meta ~ describe the agent tables metadata.\n "
                           "help ~ display this list of commands.\n "
@@ -171,7 +171,7 @@ def interactPrompt(interactType, id, TS):
                 print(colored(" Agent ~ " + TS.getDBObj().pullSpecific("agentid", id)[0][0]))  
             else:
                 for entry in TS.getDBObj().pullSpecific(interactType, id):
-                    print(colored(" Agent ~ " + entry[0]))  
+                    print(colored(" Agent ~ " + entry[0], "magenta"))  
 
         elif user_input == "back" or user_input == "exit":
             return 
