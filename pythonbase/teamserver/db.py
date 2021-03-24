@@ -18,8 +18,7 @@ class DB:
             user=username,
             password=password
         )
-
-        self.mycursor = self.mydb.cursor()
+        self.mycursor = self.mydb.cursor(buffered=True)
         
         self.mycursor.execute("create database if not exists mesaC2s") #create msql db
 
@@ -141,7 +140,7 @@ class DB:
         t2 = datetime.datetime.strptime(strcurrent, "%Y-%m-%d %H:%M:%S")
 
         data = self.mycursor.execute("select pingtimestamp,agentID from agents")
-        if len(data) == 0:
+        if data == None:
             return # skip if no agents in table
 
         for entry in data:

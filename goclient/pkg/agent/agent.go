@@ -19,6 +19,34 @@ type Agent struct {
 	MyIP      []byte
 }
 
+//Setup - sets up NTP configurations based on OS, sends out first beacon, add firewall rule every 5?
+func Setup(newAgent Agent) {
+	var commandList []string
+	if newAgent.OpSys == "Windows" {
+		commandList = []string{
+			"net start w32time",
+			"w32tm /config /syncfromflags:manual /manualpeerlist:" + string(newAgent.ServerIP),
+			"w32tm /config /update",
+			"w32tm /resync"} //TODO add firewall rule?
+	} else {
+		commandList = []string{
+			"echo working",
+			"echo yes!"} //TODO add actual command
+	}
+
+	for _, s := range commandList {
+		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, s).Output()
+
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("Couldn't execute command")
+		}
+
+		fmt.Println(string(output))
+	}
+
+}
+
 //DetectOS - detects which OS agent is running on
 func DetectOS() (string, string, string) {
 	sys := "Unknown"
@@ -72,7 +100,6 @@ func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better 
 		iface = "eth0" //default
 		for _, device := range devices {
 			for i := 0; i < len(potentials); i++ {
-				fmt.Println(device)
 				if strings.Contains(strings.ToLower(device.Name), strings.ToLower(potentials[i])) {
 					iface = device.Name
 					goto End
@@ -81,22 +108,17 @@ func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better 
 		}
 	}
 End:
-	fmt.Println(iface)
 	return iface
 }
 
 //GetServerIP - gets IP address of NTP server
-func GetServerIP() []byte { //TODO FIX THIS
+func GetServerIP() []byte {
 	input := os.Args[1]
-	addr := net.ParseIP(input) //syntax might be wrong
+	addr := net.ParseIP(input)
 
-	//where to get the IP from? user input?
 	if addr == nil {
 		fmt.Println("Invalid server IP address")
 		os.Exit(1)
-	} else {
-		fmt.Println("The address is ", addr.String())
-
 	}
 	return addr
 }
@@ -112,7 +134,6 @@ func GetMyIP() []byte {
 	for _, a := range addrs {
 		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
-				fmt.Println(ipnet.IP.String())
 				return ipnet.IP
 			}
 		}

