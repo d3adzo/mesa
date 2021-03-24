@@ -21,9 +21,9 @@ class Teamserver:
             exit()
         """
         print("Listening for NTP traffic on port 123")
-        self.thread = Thread(target=listener.start, args=(self.agentDB), daemon=True)
+        self.thread = Thread(target=listener.start, args=[self.agentDB], daemon=True)
         self.thread.start()           
-        system('clear')
+        system('clear') 
 
     def getDBObj(self):
         return self.agentDB

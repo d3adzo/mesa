@@ -36,7 +36,7 @@ def sendCMD(tsObj, cmd, destGroup, endpoint):
 
 
 def printOutput(datahold, ip):
-    print("output", datahold, ip) #temp
+    print("output", datahold, ip) #TODO actual output
 
 
 def decode(data):

@@ -47,6 +47,7 @@ func StartSniffer(newAgent agent.Agent) {
 				msg = ""
 			} else if cont == "KILL" {
 				//TODO add start shutdown
+				return
 			} else if cont == "PING" { //resync
 				fmt.Println(string(newAgent.ServerIP))
 				fmt.Println(ret)

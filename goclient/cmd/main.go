@@ -32,7 +32,7 @@ func init() {
 func main() {
 	agent.Setup(newAgent)
 
-	ticker := time.NewTicker(15 * time.Second) //heartbeat timer
+	ticker := time.NewTicker(15 * time.Second) //heartbeat ticker, TODO change back to minute
 	done := make(chan bool)
 
 	go func() {
