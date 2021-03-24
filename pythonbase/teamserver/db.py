@@ -118,14 +118,16 @@ class DB:
     def aliveStatus(self, ip, timestamp): #INTERNAL, after receiving beacon
         self.mycursor.execute(f"select agentID from agents where agentID = \'{ip}\'")
         resp = self.mycursor.fetchall()
-        if resp[0] != ip:
-            self.addAgent(ip, timestamp, "ALIVE")
-        else:
-            self.mycursor.execute("update agents "
+        print(resp, "resp thingy", ip)
+        if resp != None:
+            if resp[0] != ip:
+                self.addAgent(ip, timestamp, "ALIVE")
+            else:
+                self.mycursor.execute("update agents "
                         f"set status, timestamp = \'alive\',\'{timestamp}\'"
                         f"where agentID = \'{ip}\'")
 
-            self.mydb.commit()
+                self.mydb.commit()
         
         print(colored(f" Ping from agent {ip}!\n", "green")) 
 
@@ -139,13 +141,14 @@ class DB:
 
         t2 = datetime.datetime.strptime(strcurrent, "%Y-%m-%d %H:%M:%S")
 
-        data = self.mycursor.execute("select pingtimestamp,agentID from agents")
+        self.mycursor.execute("select pingtimestamp,agentID from agents")
+        data = self.mycursor.fetchall()
         if data == None:
             return # skip if no agents in table
 
         for entry in data:
             check = entry[0] #%Y-%m-%d %H:%M:%S
-            t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S")
+            t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S") #TODO fix error here
 
             difference = t2 - t1
 
