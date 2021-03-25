@@ -60,7 +60,7 @@ def mesaPrompt(TS): #TS is teamserver object
                             "interact <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. Ping/kill agents, or enter the CMD subprompt here.\n "
                             "help ~ display this list of commands.\n "
                             "exit ~ quit the program, state will be saved.\n "
-                            "shutdown ~ quit the program, all agents are killed, database is cleaned.",
+                            "shutdown ~ quit the program, all agents are killed, database is cleaned.\n",
                             'yellow'))
 
         elif user_input == "exit":
@@ -108,12 +108,12 @@ def dbPrompt(TS):
 
         elif user_input == "help":
             print('DB Subcommand List')
-            print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent.\n "
+            print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"\n "
                           "agents ~ list all agent entries.\n " 
                           "removeall ~ remove all agents from the database.\n " 
                           "meta ~ describe the agent tables metadata.\n "
                           "help ~ display this list of commands.\n "
-                          "back ~ return to the main prompt.",
+                          "back ~ return to the main prompt.\n",
                           'yellow'))
 
         elif user_input == "meta":
@@ -129,7 +129,7 @@ def dbPrompt(TS):
 
 
 def interactPrompt(interactType, id, TS):
-    interactCMDs = ['ping', 'kill', 'cmd', 'list', 'help', 'back']
+    interactCMDs = ['ping', 'kill', 'cmd', 'agents', 'help', 'back']
     interactCompleter = WordCompleter(interactCMDs,
                                 ignore_case=True)
     while True:
@@ -162,16 +162,13 @@ def interactPrompt(interactType, id, TS):
             print(colored(" ping ~ ping agent.\n "
                           "kill ~ send kill command to agent. confirmed with y/n.\n "
                           "cmd ~ enter the cmd subprompt.\n "
+                          "agents ~ display agents under the interact filters.\n "
                           "help ~ display this list of commands.\n "
-                          "back ~ return to the main prompt.",
+                          "back ~ return to the main prompt.\n",
                           'yellow'))
 
-        elif user_input == "list":
-            if interactType == "agent":
-                print(colored(" Agent ~ " + TS.getDBObj().pullSpecific("agentid", id)[0][0]))  
-            else:
-                for entry in TS.getDBObj().pullSpecific(interactType, id):
-                    print(colored(" Agent ~ " + entry[0], "magenta"))  
+        elif user_input == "agents":
+            TS.displayBoard(all=False, interactType=interactType, id=id)
 
         elif user_input == "back" or user_input == "exit":
             return 
@@ -198,7 +195,7 @@ def cmdPrompt(interactType, id, TS):
             print('Subcommand List')
             print(colored(" <CMD> ~ send CMD to agent.\n "
                           "help ~ display this list of commands.\n "
-                          "back ~ return to the interact prompt.",
+                          "back ~ return to the interact prompt.\n",
                           'yellow'))
         elif user_input == "back" or user_input == "exit":
             return
@@ -208,6 +205,7 @@ def cmdPrompt(interactType, id, TS):
             system('clear')
         else:
             #TODO sending quotes (and other chars) is being weird, fix this
+            print(user_input)
             c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?
             
             #C: get output and encode in NTP response

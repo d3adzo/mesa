@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 )
 
@@ -134,11 +135,17 @@ func Heartbeat(newAgent agent.Agent) {
 	}
 }
 
-//encode/decode/craft packets
-/*
-func Encode(data string) Packet { //fix args
-
-}*/
+//encode and send traffic
+func encode(output []byte, handler *pcap.Handle, newAgent agent.Agent) {
+	buf := gopacket.NewSerializeBuffer()
+	opts := gopacket.SerializeOptions{}
+	gopacket.SerializeLayers(buf, opts,
+		&layers.Ethernet{},
+		&layers.IPv4{},
+		&layers.TCP{},
+		gopacket.Payload([]byte{1, 2, 3, 4}))
+	packetData := buf.Bytes()
+}
 
 //More notes for myself
 //server will run on two main threads: listening for connections (always) -> action thread. And prompt.

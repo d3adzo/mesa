@@ -1,4 +1,5 @@
 import datetime
+
 from scapy.all import IP, UDP, NTP, send
 
 class Packet:
@@ -41,8 +42,9 @@ class CommandPacket(Packet):
 
             ucode = str(cmdArr[ctr].encode("utf-8")).strip('b\'')#.strip("\"") #Encoded command
 
-            print(ucode, "ucode")
             ntpPayload = self.baseline + refId + ucode +"\x00"*(32-len(cmdArr[ctr]))
+            ntpPayload = ntpPayload.replace("\\", "")
+
             packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(ntpPayload)
             
             send(packet, verbose=0)

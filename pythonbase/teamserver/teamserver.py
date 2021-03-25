@@ -33,11 +33,18 @@ class Teamserver:
         return self.NTPServer
 
     #display the board of active c2s, call again to refresh
-    def displayBoard(self):
-        data = self.agentDB.dbPull()
+    def displayBoard(self, all=True, interactType="", id=""):
+        if interactType == "agent":
+            interactType = "agentID"
+
+        if all == True:
+            data = self.agentDB.dbPull()
+        else:
+            data = self.getDBObj().pullSpecific(interactType, id)
+
         if len(data) == 0:
-            print(colored(" No Agents in DB!\n", "red"))
-            return
+                print(colored(" No Agents in DB!\n", "red"))
+                return
 
         d = []
         for entry in data:
