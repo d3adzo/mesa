@@ -1,22 +1,10 @@
 package main
 
 import (
-
-	//"os"
-
-	//"strings"
-	//"bytes"
-	//"log"
-
-	//"mesa/client/pkg/ntppacket"
-	//"mesa/client/pkg/listener"
-
 	"fmt"
 	"mesa/goclient/pkg/agent"
 	"mesa/goclient/pkg/handler"
 	"time"
-	//"github.com/google/gopacket"
-	//"github.com/google/gopacket/pcap"
 )
 
 var newAgent agent.Agent
@@ -25,7 +13,7 @@ func init() {
 	newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
 	newAgent.IFace = agent.GetNetAdapter(newAgent)
-	newAgent.ServerIP = agent.GetServerIP()
+	newAgent.ServerIP = []byte{127, 0, 0, 1}
 	newAgent.MyIP = agent.GetMyIP()
 }
 

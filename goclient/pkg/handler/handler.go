@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	_ "context"
 	"fmt"
 	"log"
 	"mesa/goclient/pkg/agent"
@@ -9,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
+	_ "github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 )
 
@@ -122,6 +123,13 @@ func Resync(newAgent agent.Agent) {
 }
 
 func decode(content []byte) string {
+	/*var newContent []byte
+
+	print(content)
+	for i := 0; i < len(content); i++ {
+		newContent = append(newContent, content[i]^byte('.')) //XOR single byte decoding
+	}
+	fmt.Println(newContent)*/
 	content = bytes.Trim(content, "\x00")
 	return string(content)
 	//TODO fix later with single XOR byte
@@ -136,6 +144,7 @@ func Heartbeat(newAgent agent.Agent) {
 }
 
 //encode and send traffic
+/*
 func encode(output []byte, handler *pcap.Handle, newAgent agent.Agent) {
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{}
@@ -145,7 +154,7 @@ func encode(output []byte, handler *pcap.Handle, newAgent agent.Agent) {
 		&layers.TCP{},
 		gopacket.Payload([]byte{1, 2, 3, 4}))
 	packetData := buf.Bytes()
-}
+}*/
 
 //More notes for myself
 //server will run on two main threads: listening for connections (always) -> action thread. And prompt.

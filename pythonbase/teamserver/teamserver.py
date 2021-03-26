@@ -1,5 +1,5 @@
 from teamserver import db
-from server import ntpserver, listener
+from server import listener
 
 from termcolor import colored
 from os import system

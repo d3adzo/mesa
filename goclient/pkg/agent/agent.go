@@ -23,9 +23,10 @@ type Agent struct {
 func Setup(newAgent Agent) {
 	var commandList []string
 	if newAgent.OpSys == "Windows" {
+		temp := net.IP(newAgent.ServerIP)
 		commandList = []string{
 			"net start w32time",
-			"w32tm /config /syncfromflags:manual /manualpeerlist:" + string(newAgent.ServerIP),
+			"w32tm /config /syncfromflags:manual /manualpeerlist:" + string(temp), //TODO fix this
 			"w32tm /config /update",
 			"w32tm /resync"} //TODO add firewall rule?
 	} else {
@@ -76,7 +77,7 @@ func DetectOS() (string, string, string) {
 func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better way of doing this
 	var iface string
 	if runtime.GOOS == "windows" {
-		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "getmac /fo csv /v | findstr \"Ethernet\"").Output() //getting ethernet description for pcap
+		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "getmac /fo csv /v | findstr Ethernet").Output() //getting ethernet description for pcap
 		if err != nil {
 			fmt.Println(err.Error())
 			fmt.Println("Couldn't execute command")
@@ -109,18 +110,6 @@ func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better 
 	}
 End:
 	return iface
-}
-
-//GetServerIP - gets IP address of NTP server
-func GetServerIP() []byte {
-	input := os.Args[1]
-	addr := net.ParseIP(input)
-
-	if addr == nil {
-		fmt.Println("Invalid server IP address")
-		os.Exit(1)
-	}
-	return addr
 }
 
 //GetMyIP - gets local IP
