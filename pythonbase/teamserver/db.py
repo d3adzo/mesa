@@ -112,9 +112,6 @@ class DB:
 
             print(colored(f" Identifier \"{grouping}\" added to Agent {addr}!\n", "green"))
 
-    
-        
-    
 
 
     def removeAllAgents(self):  # PUBLIC, removes all agents
@@ -202,7 +199,7 @@ class DB:
 
     def cleanDB(self):  # EXTERNAL, called on 'shutdown'
         self.mycursor.execute("drop table agents")
-        self.mycursor.execute("")
+        #self.mycursor.execute("")
 
 
 # adding to db

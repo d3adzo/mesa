@@ -34,9 +34,11 @@ def start(agentDB):
                 datahold = ""
 
         else: #this means resync/ping
-            ntpserver.resync(sock)
-            
+            print(ip)
+            ntpserver.resync(sock, data, addr)
+            print('timestamping')
             timestamp = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
+            print("adding to db")
             agentDB.aliveStatus(ip, timestamp)
 
             

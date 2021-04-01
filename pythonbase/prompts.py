@@ -69,7 +69,7 @@ def mesaPrompt(TS): #TS is teamserver object
 
         elif user_input == "shutdown":
             TS.shutdown()
-            #TODO send kill to all agents, removeall agents from agents, delete db
+    
         elif user_input == "":
             pass #do nothing    
         else:
@@ -206,7 +206,7 @@ def cmdPrompt(interactType, id, TS):
 
         elif user_input == "clear":
             system('clear')
-            
+
         else:
             #TODO sending quotes (and other chars) is being weird, fix this
             c2.sendCMD(TS, user_input, interactType, id) #TODO what about running exes/commands that hang?

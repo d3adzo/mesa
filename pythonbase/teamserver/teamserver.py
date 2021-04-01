@@ -1,5 +1,5 @@
 from teamserver import db
-from server import listener
+from server import listener, c2
 
 from termcolor import colored
 from os import system
@@ -60,5 +60,9 @@ class Teamserver:
         #take into account single/group (one/many) command responses
 
     def shutdown(self):
-        self.thread.join() #TODO doe this work
+        #TODO send kill to all agents, removeall agents from agents, delete db
+        c2.sendRefCMD(self, all, "", "KILL")
+        self.agentDB.removeAllAgents()
+        self.agentDB.cleanDB()
+
         exit(0)

@@ -9,6 +9,14 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
 
         iPacket = packets.IDPacket(endpoint, refId)
         iPacket.sendIdPacket()
+    
+    elif destGroup == "all": #shutdown only
+        data = tsObj.getDBObj().dbPull()
+        for entry in data:
+           print(entry[0][0]) 
+
+           iPacket = packet.IDPacket(entry[0][0], refId)
+           iPacket.sendIdPacket()
 
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)

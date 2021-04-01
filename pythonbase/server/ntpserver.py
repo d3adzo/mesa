@@ -87,6 +87,7 @@ class NTPPacket:
     """packet format to pack/unpack"""
 
     def __init__(self, version=2, mode=3, tx_timestamp=0):
+
         """Constructor.
 
         Parameters:
@@ -126,14 +127,6 @@ class NTPPacket:
         """tansmit timestamp"""
         
     def to_data(self):
-        """Convert this NTPPacket to a buffer that can be sent over a socket.
-
-        Returns:
-        buffer representing this packet
-
-        Raises:
-        NTPException -- in case of invalid field
-        """
         try:
             packed = struct.pack(NTPPacket._PACKET_FORMAT,
                 (self.leap << 6 | self.version << 3 | self.mode),
@@ -154,24 +147,18 @@ class NTPPacket:
                 _to_int(self.tx_timestamp),
                 _to_frac(self.tx_timestamp))
         except struct.error:
-            raise NTPException("Invalid NTP packet fields.")
+            return None
+
         return packed
 
     def from_data(self, data):
-        """Populate this instance from a NTP packet payload received from
-        the network.
-
-        Parameters:
-        data -- buffer payload
-
-        Raises:
-        NTPException -- in case of invalid packet format
-        """
         try:
             unpacked = struct.unpack(NTPPacket._PACKET_FORMAT,
                     data[0:struct.calcsize(NTPPacket._PACKET_FORMAT)])
+            return "working"
         except struct.error:
-            raise NTPException("Invalid NTP packet.")
+            return None
+
 
         self.leap = unpacked[0] >> 6 & 0x3
         self.version = unpacked[0] >> 3 & 0x7
@@ -197,81 +184,35 @@ class NTPPacket:
     def SetOriginTimeStamp(self,high,low):
         self.orig_timestamp_high = high
         self.orig_timestamp_low = low
-        
-
-class RecvThread(threading.Thread):
-    def __init__(self,socket, stopFlag, taskQueue):
-        threading.Thread.__init__(self)
-        self.socket = socket
-        self.stopFlag = stopFlag
-        self.taskQueue = taskQueue
-    def run(self):
-        while True:
-            if self.stopFlag == True:
-                #print ("RecvThread Ended")
-                break
-            rlist,wlist,elist = select.select([self.socket],[],[],1);
-            if len(rlist) != 0:
-                #print ("Received {} packets".format(len(rlist)))
-                for tempSocket in rlist:
-                    try:
-                        data,addr = tempSocket.recvfrom(2048)
-                        recvTimestamp = system_to_ntp_time(time.time())
-                        self.taskQueue.put((data,addr,recvTimestamp))
-                    except socket.error as msg:
-                        #print (msg)
-
-class WorkThread(threading.Thread):
-    def __init__(self,sock, stopFlag, taskQueue):
-        threading.Thread.__init__(self)
-        self.sock = sock
-        self.stopFlag = stopFlag
-        self.taskQueue = taskQueue
-    def run(self):
-        while True:
-            if self.stopFlag == True:
-                #print ("WorkThread Ended")
-                break
-            try:
-                data,addr,recvTimestamp = self.taskQueue.get(timeout=1)
-                recvPacket = NTPPacket()
-                recvPacket.from_data(data)
-                timeStamp_high,timeStamp_low = recvPacket.GetTxTimeStamp()
-                sendPacket = NTPPacket(version=3,mode=4)
-                sendPacket.stratum = 2
-                sendPacket.poll = 10
-                '''
-                sendPacket.precision = 0xfa
-                sendPacket.root_delay = 0x0bfa
-                sendPacket.root_dispersion = 0x0aa7
-                sendPacket.ref_id = 0x808a8c2c
-                '''
-                sendPacket.ref_timestamp = recvTimestamp-5
-                sendPacket.SetOriginTimeStamp(timeStamp_high,timeStamp_low)
-                sendPacket.recv_timestamp = recvTimestamp
-                sendPacket.tx_timestamp = system_to_ntp_time(time.time())
-                self.sock.sendto(sendPacket.to_data(),addr)
-                #print ("Sended to {}:{}".format(addr[0], addr[1]))
-            except Queue.Empty:
-                continue
 
 
-
-def resync(socket):   
+def resync(socket, data, addr):
+ 
     taskQueue = Queue.Queue()
-    stopFlag = False
 
-    recvThread = RecvThread(socket, stopFlag, taskQueue)
-    recvThread.start()
-    workThread = WorkThread(socket, stopFlag, taskQueue)
-    workThread.start()
-
-    time.sleep(0.5)
-
-    stopFlag = True
-    recvThread.join()
-    workThread.join()
-
-
-
+    recvTimestamp = system_to_ntp_time(time.time())
+    taskQueue.put((data,addr,recvTimestamp))
     
+    data,addr,recvTimestamp = taskQueue.get(timeout=1)
+    recvPacket = NTPPacket()
+    retvalue = recvPacket.from_data(data)
+    if retvalue == None:
+        return
+
+    timeStamp_high,timeStamp_low = recvPacket.GetTxTimeStamp()
+    sendPacket = NTPPacket(version=3,mode=4)
+    sendPacket.stratum = 2
+    sendPacket.poll = 10
+
+    sendPacket.ref_timestamp = recvTimestamp-5
+    sendPacket.SetOriginTimeStamp(timeStamp_high,timeStamp_low)
+    sendPacket.recv_timestamp = recvTimestamp
+    sendPacket.tx_timestamp = system_to_ntp_time(time.time())
+
+    retvalue = sendPacket.to_data()
+    print(retvalue)
+    if retvalue == None:
+        return
+    
+    print(addr)
+    socket.sendto(retvalue,addr)
