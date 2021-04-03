@@ -9,10 +9,8 @@ class DB:
     def __init__(self):
         print("Setting up DB...")
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        # username = input("Enter MySQL username: ") #TODO add back
-        # password = getpass.getpass(prompt="Enter MySQL password: ")
-        username = "root"
-        password = "mesa"
+        username = input("Enter MySQL username: ") #TODO add back
+        password = getpass.getpass(prompt="Enter MySQL password: ")
 
         self.mydb = mysql.connector.connect(
             host="localhost",
@@ -31,6 +29,14 @@ class DB:
                                 "service varchar(255) null,"
                                 "status varchar(10) not null default \'ALIVE\',"
                                 "pingtimestamp timestamp null)")
+        
+        """for i in range(1, 50):
+            ip = "10.5.6." + str(i)
+            sqlcmd = ("insert into agents (agentid, pingtimestamp) values (%s, %s)")
+            values = (ip, "2021-04-03 12:49:31")
+
+            self.mycursor.execute(sqlcmd, values)
+            self.mydb.commit()"""
 
     # DB MODS
     def addAgent(self, ip, timestamp, status):  # INTERNAL, when receive first (setup) ping
@@ -40,7 +46,7 @@ class DB:
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        # print(colored(f"Agent {ip} added!\n", "yellow"))
+        print(colored(f"\n\nAgent {ip} added!\n", "green"))
 
     def deleteAgent(self, ip):  # INTERNAL, for kill command
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
@@ -51,7 +57,7 @@ class DB:
     def dbPull(self):  # PUBLIC
         self.checkStatus()
 
-        self.mycursor.execute("select * from agents order by service desc")
+        self.mycursor.execute("select * from agents order by isnull(service), service asc")
         return self.mycursor.fetchall()
 
     def pullSpecific(self, grouping, value):  # INTERNAL, use this when sending group commands?
@@ -207,7 +213,7 @@ class DB:
         self.mydb.commit()
         print(colored("\n Deleting database mesaC2...\n", "yellow"))
         
-        
+
 
 """
 +---------------+--------------+------+-----+---------+-------+

@@ -5,6 +5,7 @@ __pycache__/
 .gitignore
 .gitattributes
 pythonbase/textfiles/history.txt
-goclient/bin
 **/pycache.sh
 todo.txt
+goclient/bin/windows-agent.exe
+goclient/bin/macos-agent

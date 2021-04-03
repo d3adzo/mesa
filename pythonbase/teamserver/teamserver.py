@@ -5,22 +5,21 @@ from termcolor import colored
 from os import system
 from threading import Thread
 from tabulate import tabulate
-#from multiprocessing import Process # -> if needs more power
 
 class Teamserver:
     def __init__(self):
 
-        #try:
-        self.agentDB = db.DB()
-        system('clear')
-        """
-        except:
+        try:
+            self.agentDB = db.DB()
+            system('clear')
+        
+        except Exception:
             print(colored("Problem connecting to the MySQL DB! \n"
                     "Make sure that the credentials entered are correct/MySQL Server is running. \n"
                     "Exiting...",
                     "red"))
             exit()
-        """
+        
         print("Listening for NTP traffic on port 123")
         self.thread = Thread(target=listener.start, args=[self.agentDB], daemon=True)
         self.thread.start()           
@@ -60,7 +59,6 @@ class Teamserver:
         #take into account single/group (one/many) command responses
 
     def shutdown(self):
-        #TODO send kill to all agents, removeall agents from agents, delete db
         print(colored("\n Sending KILL Reference to all agents...\n", "yellow"))
         c2.sendRefCMD(self, "all", "", "KILL")
         
