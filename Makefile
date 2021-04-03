@@ -20,7 +20,7 @@ agent-windows:
 
 agent-linux:
 	echo "Compiling Linux binary"
-	env CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build ${FLAGS} -o ${DIRECTORY}/${LINUX} goclient/cmd/main.go
+	env CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC="zcc" CXX="zxx" go build ${FLAGS} -o ${DIRECTORY}/${LINUX} goclient/cmd/main.go
 
 clean:
 	rm -rf ${DIRECTORY}

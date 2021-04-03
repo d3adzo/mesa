@@ -6,19 +6,7 @@ from scapy.all import IP, UDP, NTP, send
 class Packet:
     def __init__(self, destination):
         self.destination = destination
-        self.baseline = "\x1a\x01\x0a\xf0" + "\x00"*7 #TODO something is wrong here
-    
-
-class NTPPacket(Packet):
-    def __init__(self, destination, timeinfo):
-        super().__init__(destination)
-        self.timeinfo = timeinfo
-    
-
-    def sendTimePacket(self):
-        pass 
-        #refId = GPS\x00
-        #use actual NTP scapy?
+        self.baseline = "\x1a\x01\x0a\xf0" + "\x00"*7 
 
    
 

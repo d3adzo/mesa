@@ -26,7 +26,7 @@ def start(agentDB):
 
         strdata = c2.decode(data)
 
-        if "COM" in strdata:
+        if "COM" in strdata: #TODO later, handling of multiple COMOs (ex. sending command to multiple sources and receiving output?)???
             idx = strdata.index("COM")
             datahold += strdata[idx+4:]
             if "COMQ" in strdata:

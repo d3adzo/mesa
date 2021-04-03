@@ -21,9 +21,9 @@ class DB:
         )
         self.mycursor = self.mydb.cursor(buffered=True)
 
-        self.mycursor.execute("create database if not exists mesaC2s")  # create msql db
+        self.mycursor.execute("create database if not exists mesaC2")  # create msql db
 
-        self.mycursor.execute("use mesaC2s")
+        self.mycursor.execute("use mesaC2")
 
         self.mycursor.execute("create table if not exists agents("
                                 "agentID varchar(16) not null primary key,"
@@ -135,6 +135,7 @@ class DB:
         self.mycursor.execute("desc agents")
         for value in self.mycursor.fetchall():
             print(value)
+        print("")
 
 
     # STATUS CHECKS
@@ -148,9 +149,9 @@ class DB:
 
 
     def deadStatus(self, ip):  # PUBLIC, after agent killed
-        self.mycursor.execute("update agents "
-                            "set status = \'DEAD\'"
-                            f"where agentID = \'{ip}\'")
+        sqlcmd = "update agents set status=%s where agentid=%s"
+        val = ("SRV-KILLED", str(ip))
+        self.mycursor.execute(sqlcmd, val)
 
         self.mydb.commit()
 
@@ -182,7 +183,7 @@ class DB:
 
         t2 = datetime.datetime.strptime(strcurrent, "%Y-%m-%d %H:%M:%S")
 
-        self.mycursor.execute("select pingtimestamp,agentID from agents")
+        self.mycursor.execute("select pingtimestamp,agentID,status from agents")
         data = self.mycursor.fetchall()
         if len(data) == 0:
             return  # skip if no agents in table
@@ -193,20 +194,20 @@ class DB:
 
             difference = t2 - t1
 
-            if difference.seconds / 60 > 3.0:
+            if difference.seconds / 60 > 3.0 and entry[2] != "SRV-KILLED":
                 self.missingStatus(entry[1])
 
 
     def cleanDB(self):  # EXTERNAL, called on 'shutdown'
+        self.removeAllAgents()
         self.mycursor.execute("drop table agents")
-        #self.mycursor.execute("")
-
-
-# adding to db
-# given ip, os, service
-# timestamp null, status MIA
-# on first alive ping from client, current timestamp, alive status
-# start timer only now that timestamp is not null and has a valid value
+        self.mydb.commit()
+        print(colored("\n Dropping agents table...", "yellow"))
+        self.mycursor.execute("drop database mesaC2")
+        self.mydb.commit()
+        print(colored("\n Deleting database mesaC2...\n", "yellow"))
+        
+        
 
 """
 +---------------+--------------+------+-----+---------+-------+
@@ -215,7 +216,7 @@ class DB:
 | agentID       | varchar(16)  | NO   | PRI | NULL    |       |
 | os            | varchar(255) | YES  |     | NULL    |       |
 | service       | varchar(255) | YES  |     | NULL    |       |
-| status        | varchar(10)  | NO   |     | MIA     |       |
+| status        | varchar(10)  | NO   |     | ALIVE   |       |
 | pingtimestamp | timestamp    | YES  |     | NULL    |       |
 +---------------+--------------+------+-----+---------+-------+
 """

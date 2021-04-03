@@ -23,9 +23,6 @@ def _to_frac(timestamp, n=32):
 def _to_time(integ, frac, n=32):
     return integ + float(frac)/2**n	
 
-class NTPException(Exception):
-    """Exception raised by this module."""
-    pass
 
 class NTP:
     """Helper class defining constants."""
@@ -77,24 +74,14 @@ class NTP:
     }
     """leap indicator table"""
 
-class NTPPacket:
-    """NTP packet class.
 
-    This represents an NTP packet.
-    """
+class NTPPacket:
     
     _PACKET_FORMAT = "!B B B b 11I"
     """packet format to pack/unpack"""
 
     def __init__(self, version=2, mode=3, tx_timestamp=0):
 
-        """Constructor.
-
-        Parameters:
-        version      -- NTP version
-        mode         -- packet mode (client, server)
-        tx_timestamp -- packet transmit timestamp
-        """
         self.leap = 0
         """leap second indicator"""
         self.version = version
@@ -210,7 +197,6 @@ def resync(socket, data, addr):
     sendPacket.tx_timestamp = system_to_ntp_time(time.time())
 
     retvalue = sendPacket.to_data()
-    print(retvalue)
     if retvalue == None:
         return
     

@@ -1,11 +1,8 @@
 from prompts import mesaPrompt
-from server import listener
+from teamserver import teamserver
 
 from os import geteuid
-from teamserver import teamserver
-from threading import Thread
 
-#TODO on client, make command run in background (ie linux &)?
 
 #Entrypoint
 def main():

@@ -40,11 +40,11 @@ class Teamserver:
         if all == True:
             data = self.agentDB.dbPull()
         else:
-            data = self.getDBObj().pullSpecific(interactType, id)
+            data = self.agentDB.pullSpecific(interactType, id)
 
         if len(data) == 0:
-                print(colored(" No Agents in DB!\n", "red"))
-                return
+            print(colored(" No Agents in DB!\n", "red"))
+            return
 
         d = []
         for entry in data:
@@ -61,8 +61,12 @@ class Teamserver:
 
     def shutdown(self):
         #TODO send kill to all agents, removeall agents from agents, delete db
-        c2.sendRefCMD(self, all, "", "KILL")
-        self.agentDB.removeAllAgents()
+        print(colored("\n Sending KILL Reference to all agents...\n", "yellow"))
+        c2.sendRefCMD(self, "all", "", "KILL")
+        
+        print(colored("\n Cleaning up...\n", "yellow"))
         self.agentDB.cleanDB()
+        
 
+        print("\nThe right man in the wrong place can make all the difference in the world.\nSo, wake up, Mr. Freeman. Wake up and smell the ashes.\n")
         exit(0)

