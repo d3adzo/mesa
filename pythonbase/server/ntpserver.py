@@ -200,5 +200,4 @@ def resync(socket, data, addr):
     if retvalue == None:
         return
     
-    print(addr)
     socket.sendto(retvalue,addr)

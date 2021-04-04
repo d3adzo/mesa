@@ -9,14 +9,15 @@ class DB:
     def __init__(self):
         print("Setting up DB...")
         print(colored("Make sure MySQL Server is running.", "yellow"))
-        username = input("Enter MySQL username: ") #TODO add back
+        username = input("Enter MySQL username: ") 
         password = getpass.getpass(prompt="Enter MySQL password: ")
-
+        print(password)
         self.mydb = mysql.connector.connect(
             host="localhost",
             user=username,
             password=password
         )
+
         self.mycursor = self.mydb.cursor(buffered=True)
 
         self.mycursor.execute("create database if not exists mesaC2")  # create msql db
@@ -29,7 +30,9 @@ class DB:
                                 "service varchar(255) null,"
                                 "status varchar(10) not null default \'ALIVE\',"
                                 "pingtimestamp timestamp null)")
+                                
         
+        #for large entries testing
         """for i in range(1, 50):
             ip = "10.5.6." + str(i)
             sqlcmd = ("insert into agents (agentid, pingtimestamp) values (%s, %s)")

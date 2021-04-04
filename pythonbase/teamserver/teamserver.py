@@ -12,12 +12,12 @@ class Teamserver:
         try:
             self.agentDB = db.DB()
             system('clear')
-        
+
         except Exception:
             print(colored("Problem connecting to the MySQL DB! \n"
-                    "Make sure that the credentials entered are correct/MySQL Server is running. \n"
-                    "Exiting...",
-                    "red"))
+            " Make sure that the credentials entered are correct/MySQL Server is running. \n"
+            " Exiting...", 
+                "red"))
             exit()
         
         print("Listening for NTP traffic on port 123")
@@ -50,7 +50,7 @@ class Teamserver:
             d.append(entry)
         
         print("\n")
-        print(colored(tabulate(data, headers=["Agent IP", "OS", "Service", "Status", "Last Ping"]), "magenta"))
+        print(colored(tabulate(data, headers=["Agent IP", "OS", "Service", "Status", "Last Ping"], tablefmt="fancy_grid"), "magenta"))
         print("\n")
     
     

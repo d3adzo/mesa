@@ -24,6 +24,10 @@ I used a local MySQL 5.7 server.
 ### Agent
 Golang must be installed. The Makefile uses `go build` .
 
+Certain external packages are also used. See **Packages Installed** for list.
+
+Use `go get <link>` to install.
+
 ## Usage
 ### Server
 Run `python3 start.py` 
@@ -37,42 +41,44 @@ Enter `help` or use the TAB key for a list of commands at of the prompt levels.
 #### Mesa Prompt
 This is your main prompt. Display the agent table, enter the DB subprompt, interact with an agent / group of agents, or exit/shutdown. 
 
-- Commands
+Commands: 
  - `agents` ~ display the board of agent entries.
  - `db` ~ enter the database subprompt.
  - `interact` <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. 
  - `help` ~ display this list of commands.
  - `exit` ~ quit the program, state will be saved.
  - `shutdown` ~ quit the program, all agents are killed, database is cleaned.
-
+---
 #### DB Prompt
 This is the DB subprompt. This is where certain DB actions will take place, like adding groupings, removing agents, or describing the agents table.
 
-- Commands
+Commands: 
  - `agents` ~ display the board of agent entries.
  - `group` ~ group <ip> <os/service> <name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"
  - `removeall` ~ remove all agents from the database.
  - `help` ~ display this list of commands.
  - `meta` ~ describe the agent tables metadata.
  - `back` ~ return to the main prompt.
-  
+---
 #### Interact Prompt
 This is the interaction subprompt. Send PING or KILL references to agents, or enter the CMD subprompt.
-- Commands
+
+Commands:
  - `ping` ~ ping agent.
  - `kill` ~ send kill command to agent. confirmed with y/n.
  - `cmd` ~ enter the cmd subprompt.
  - `help` ~ display this list of commands.
  - `back` ~ return to the main prompt.
- 
+---
 #### CMD Prompt
 
 This is the command subprompt. Send commands to agents here.
-- Commands
+
+Commands: 
  - `<input>` ~ send command `<input>` to agents.
  - `help` ~ display this list of commands.
  - `back` ~ return to the interact prompt.
-
+---
 ### Client
 Run `make`  
 
@@ -89,6 +95,7 @@ Once an agent is run, they will setup on the machine and sync with the server. A
 - prompt_toolkit
 - termcolor
 - tabulate
+- mysql.connector
 
 Use `pip3 install -r pythonbase/textfiles/requirements.txt` to install.
 

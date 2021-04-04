@@ -2,3 +2,4 @@ scapy
 prompt_toolkit
 termcolor
 tabulate
+mysql.connector

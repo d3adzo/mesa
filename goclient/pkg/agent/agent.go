@@ -33,8 +33,9 @@ func Setup(newAgent Agent) {
 			"w32tm /resync"}
 	} else {
 		commandList = []string{
-			"echo working",
-			"echo yes!"} //TODO add actual command
+			"echo yeah"}
+			//"apt-get install sntp -y",
+			//"sntp -s " + strIP}
 	}
 
 	for _, s := range commandList {
