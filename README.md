@@ -44,7 +44,7 @@ This is your main prompt. Display the agent table, enter the DB subprompt, inter
 Commands: 
  - `agents` ~ display the board of agent entries.
  - `db` ~ enter the database subprompt.
- - `interact` <A[GENT]/O[S]/S[ERVICE]> <id> ~ enter the interact subprompt. 
+ - `interact` <a[gent]/o[s]/s[ervice]> \<id> ~ enter the interact subprompt. 
  - `help` ~ display this list of commands.
  - `exit` ~ quit the program, state will be saved.
  - `shutdown` ~ quit the program, all agents are killed, database is cleaned.
@@ -54,7 +54,7 @@ This is the DB subprompt. This is where certain DB actions will take place, like
 
 Commands: 
  - `agents` ~ display the board of agent entries.
- - `group` ~ group <ip> <os/service> <name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"
+ - `group` ~ group \<ip> <os/service> \<name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"
  - `removeall` ~ remove all agents from the database.
  - `help` ~ display this list of commands.
  - `meta` ~ describe the agent tables metadata.
@@ -88,6 +88,8 @@ This will cross-compile agents.
 - macOS -> `macos-agent`
 
 Once an agent is run, they will setup on the machine and sync with the server. An entry will be added to the server's database, and the agent can now be controlled.
+
+Agents are hardcoded with C2's server IP when compiled, but sending a `PING` Reference (Interact Subprompt) will update the target machine's config.
 
 # Packages Used
 ### Python3

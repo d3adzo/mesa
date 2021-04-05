@@ -71,31 +71,31 @@ def mesaHelp():
 
 def interactHelper(user_input, TS):
     arr = user_input.split(' ')
-    #try: 
-    if arr[1] == "agent" or arr[1] == "a":
-        dbType = "agentid"
-        interactType = "agent"
+    try: 
+        if arr[1] == "agent" or arr[1] == "a":
+            dbType = "agentid"
+            interactType = "agent"
 
-    elif arr[1] == "os" or arr[1] == "o":
-        dbType = "os"
-        interactType = "os"
+        elif arr[1] == "os" or arr[1] == "o":
+            dbType = "os"
+            interactType = "os"
 
-    elif arr[1] == "service" or arr[1] == "s":
-        dbType = "service"
-        interactType = "service"
+        elif arr[1] == "service" or arr[1] == "s":
+            dbType = "service"
+            interactType = "service"
 
-    else:
-        raise Exception
-    
-    data = TS.getDBObj().pullSpecific(dbType, arr[2])
-    if len(data) == 0:
-        print(colored(f" {interactType} \"{arr[2]}\" does not exist.\n", "yellow"))
-        return
+        else:
+            raise Exception
+        
+        data = TS.getDBObj().pullSpecific(dbType, arr[2])
+        if len(data) == 0:
+            print(colored(f" {interactType} \"{arr[2]}\" does not exist.\n", "yellow"))
+            return
 
-    interactPrompt(interactType, arr[2], TS)
+        interactPrompt(interactType, arr[2], TS)
 
-    #except Exception:
-        #print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>\n", 'yellow'))
+    except Exception:
+        print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>\n", 'yellow'))
 
 
 def dbPrompt(TS):
@@ -117,7 +117,6 @@ def dbPrompt(TS):
             try: 
                 TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) 
             except Exception:
-                print(Exception)
                 print(colored("Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
         else:
             ops = {

@@ -39,7 +39,7 @@ def handle(data, addr, sock, agentDB, datahold):
         datahold += strdata[idx+4:]
         if "COMQ" in strdata:
             c2.printOutput(datahold, ip)
-            datahold = ""
+            datahold = "" #return this?
 
     else: #this means resync/ping
         ntpserver.resync(sock, data, addr)
