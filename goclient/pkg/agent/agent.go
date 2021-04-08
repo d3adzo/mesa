@@ -31,11 +31,13 @@ func Setup(newAgent Agent) {
 			"netsh advfirewall set allprofiles firewallpolicy allowinbound,allowoutbound",
 			"w32tm /config /syncfromflags:manual /manualpeerlist:" + strIP + " /update",
 			"w32tm /resync"}
-	} else {
+	} else if newAgent.OpSys == "Linux" {
 		commandList = []string{
-			"echo yeah"}
-			//"apt-get install sntp -y",
-			//"sntp -s " + strIP}
+			"apt-get install sntp -y",
+			"apt-get install libpcap-dev -y",
+			"sntp -s " + strIP}
+	} else {
+		commandList = []string{"sntp -s " + strIP}
 	}
 
 	for _, s := range commandList {
@@ -77,7 +79,7 @@ func DetectOS() (string, string, string) {
 }
 
 //GetNetAdapter - gets network interface of agent
-func GetNetAdapter(newAgent Agent) string { //TODO there has got to be a better way of doing this
+func GetNetAdapter(newAgent Agent) string { 
 	var iface string
 	if runtime.GOOS == "windows" {
 		output, err := exec.Command(newAgent.ShellType, newAgent.ShellFlag, "getmac /fo csv /v | findstr Ethernet").Output() //getting ethernet description for pcap

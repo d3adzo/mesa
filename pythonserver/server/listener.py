@@ -1,8 +1,3 @@
-"""
-sole purpose is to listen consistenty for NTP traffic
-if resync is recieved, send to ntpserver.py
-if cmdoutput is received, send to c2.py
-"""
 import socket
 import datetime
 from threading import Thread

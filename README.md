@@ -5,8 +5,9 @@ This doubles as both a valid, working NTP time server and a command and control 
 
 TODO:
 - [x] Server functions as a legitimate NTP Server
-- [x] Commands/References can be sent via custom NTP packets
+- [x] Commands/References are sent via custom NTP packets
 - [x] Server handles multiple concurrent connections
+- [x] Agent works on Windows, Linux, and macOS
 - [x] Easy agent grouping (OS and Service)
 - [ ] Single Byte XOR Encryption and Decryption (implemented but broken currently)
 - [ ] Command Output (single and multiple)
@@ -15,7 +16,11 @@ The creator is not liable for the misuse of any of the following code.
 
 ## Installation
 ### Server
-Python3 must be utilized. Python2 will not work.
+Python3 must be utilized. Python2 will not work. 
+
+Certain external packages are also used. See **Packages Installed** for list.
+
+Use `pip3 install -r pythonserver/textfiles/requirements.txt` to install.
 
 #### Server Database
 Connection to a local MySQL server is required. Agent data is stored and pulled here.
@@ -30,7 +35,7 @@ Use `go get <link>` to install.
 
 ## Usage
 ### Server
-Run `python3 start.py` 
+Run `sudo python3 pythonserver/start.py` 
 
 You will be asked for MySQL credentials, this is for creating a database and saving state.
 
@@ -44,7 +49,7 @@ This is your main prompt. Display the agent table, enter the DB subprompt, inter
 Commands: 
  - `agents` ~ display the board of agent entries.
  - `db` ~ enter the database subprompt.
- - `interact` <a[gent]/o[s]/s[ervice]> \<id> ~ enter the interact subprompt. 
+ - `interact <a[gent]/o[s]/s[ervice]> <id>` ~ enter the interact subprompt. 
  - `help` ~ display this list of commands.
  - `exit` ~ quit the program, state will be saved.
  - `shutdown` ~ quit the program, all agents are killed, database is cleaned.
@@ -54,7 +59,7 @@ This is the DB subprompt. This is where certain DB actions will take place, like
 
 Commands: 
  - `agents` ~ display the board of agent entries.
- - `group` ~ group \<ip> <os/service> \<name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"
+ - `group <ip> <os/service> <name>` ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"
  - `removeall` ~ remove all agents from the database.
  - `help` ~ display this list of commands.
  - `meta` ~ describe the agent tables metadata.
@@ -91,7 +96,7 @@ Once an agent is run, they will setup on the machine and sync with the server. A
 
 Agents are hardcoded with C2's server IP when compiled, but sending a `PING` Reference (Interact Subprompt) will update the target machine's config.
 
-# Packages Used
+## Packages Used
 ### Python3
 - scapy
 - prompt_toolkit
@@ -99,7 +104,7 @@ Agents are hardcoded with C2's server IP when compiled, but sending a `PING` Ref
 - tabulate
 - mysql.connector
 
-Use `pip3 install -r pythonbase/textfiles/requirements.txt` to install.
+Use `pip3 install -r pythonserver/textfiles/requirements.txt` to install.
 
 ### Golang
 - github.com/google/gopacket

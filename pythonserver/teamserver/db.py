@@ -50,7 +50,7 @@ class DB:
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        print(colored(f"\n\nAgent {ip} added!\n", "green"))
+        print(colored(f"\n\n Agent {ip} added!\n", "green"))
 
     def deleteAgent(self, ip):  # INTERNAL, for kill command
         self.mycursor.execute(f"delete from agents where agentID=\'{ip}\'")
@@ -138,8 +138,6 @@ class DB:
         self.mycursor.execute(sqlcmd, values)
         self.mydb.commit()
 
-        # no print statement on resync?
-
 
     def describe(self):
         self.mycursor.execute("desc agents")
@@ -166,7 +164,7 @@ class DB:
         self.mydb.commit()
 
 
-    # print(colored(f" Agent {ip} is dead!\n", "red")) 
+        #print(colored(f" Agent {ip} is dead!\n", "red")) 
 
 
     def aliveStatus(self, ip, timestamp):  # INTERNAL, after receiving beacon
@@ -181,13 +179,10 @@ class DB:
 
             self.mydb.commit()
 
-        # print(colored(f" \nPing from agent {ip}!\n", "green")) 
+        #print(colored(f" \nPing from agent {ip}!\n", "green")) 
 
 
     def checkStatus(self):  # internal, called on each summon of the table
-        # query db for list of all timestamps
-        # compare current time to each one
-        # if any mia, send to missingstatus method
         tscurrent = datetime.datetime.now()
         strcurrent = "{:%Y-%m-%d %H:%M:%S}".format(tscurrent)
 
@@ -200,7 +195,7 @@ class DB:
 
         for entry in data:
             check = "{:%Y-%m-%d %H:%M:%S}".format(entry[0])  # %Y-%m-%d %H:%M:%S
-            t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S")  # TODO fix error here
+            t1 = datetime.datetime.strptime(check, "%Y-%m-%d %H:%M:%S")  
 
             difference = t2 - t1
 
@@ -216,17 +211,3 @@ class DB:
         self.mycursor.execute("drop database mesaC2")
         self.mydb.commit()
         print(colored("\n Deleting database mesaC2...\n", "yellow"))
-        
-
-
-"""
-+---------------+--------------+------+-----+---------+-------+
-| Field         | Type         | Null | Key | Default | Extra |
-+---------------+--------------+------+-----+---------+-------+
-| agentID       | varchar(16)  | NO   | PRI | NULL    |       |
-| os            | varchar(255) | YES  |     | NULL    |       |
-| service       | varchar(255) | YES  |     | NULL    |       |
-| status        | varchar(10)  | NO   |     | ALIVE   |       |
-| pingtimestamp | timestamp    | YES  |     | NULL    |       |
-+---------------+--------------+------+-----+---------+-------+
-"""

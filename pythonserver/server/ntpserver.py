@@ -193,6 +193,7 @@ def resync(socket, data, addr):
 
     sendPacket.ref_timestamp = recvTimestamp-5
     sendPacket.SetOriginTimeStamp(timeStamp_high,timeStamp_low)
+    print(sendPacket.orig_timestamp, sendPacket.orig_timestamp_high, sendPacket.orig_timestamp_low)
     sendPacket.recv_timestamp = recvTimestamp
     sendPacket.tx_timestamp = system_to_ntp_time(time.time())
 

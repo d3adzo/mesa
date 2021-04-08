@@ -54,7 +54,7 @@ class Teamserver:
         print("\n")
     
     
-    def printOutput(self): #?does this go somewhere else
+    def printOutput(self): 
         pass #TODO print command output
         #take into account single/group (one/many) command responses
 

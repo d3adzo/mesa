@@ -2,8 +2,6 @@ from transport import packets
 from termcolor import colored
 
 def sendRefCMD(tsObj, destGroup, endpoint, refId):
-    #send manual ping, expect resync back from agent
-    #send refid kill, agent will clean up, status dead in db
     kill = False
     if refId == "KILL":
         kill = True
@@ -42,7 +40,6 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
             iPacket.sendIdPacket()
 
 
-#send command via NTP message, craft mal packet
 def sendCMD(tsObj, cmd, destGroup, endpoint): 
     if destGroup == "agent": 
         print(colored(f" Sending Command \"{cmd}\" ==> ({endpoint})\n", "magenta"))

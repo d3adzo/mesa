@@ -46,7 +46,6 @@ class CommandPacket(Packet):
             #ntpPayload = ntpPayload.replace("\\\\", "\\")
 
             packet = IP(dst=self.destination)/UDP(dport=123,sport=50000)/(ntpPayload)
-            #TODO fix this port shit, something is sus here. firewall response?
 
             send(packet, verbose=0)
 
