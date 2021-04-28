@@ -142,7 +142,7 @@ class NTPPacket:
         try:
             unpacked = struct.unpack(NTPPacket._PACKET_FORMAT,
                     data[0:struct.calcsize(NTPPacket._PACKET_FORMAT)])
-            return "working"
+            #return "working"
         except struct.error:
             return None
 
@@ -165,6 +165,8 @@ class NTPPacket:
         self.tx_timestamp_high = unpacked[13]
         self.tx_timestamp_low = unpacked[14]
 
+        return "working"
+
     def GetTxTimeStamp(self):
         return (self.tx_timestamp_high,self.tx_timestamp_low)
 
@@ -174,16 +176,11 @@ class NTPPacket:
 
 
 def resync(socket, data, addr):
- 
-    taskQueue = Queue.Queue()
-
     recvTimestamp = system_to_ntp_time(time.time())
-    taskQueue.put((data,addr,recvTimestamp))
-    
-    data,addr,recvTimestamp = taskQueue.get(timeout=1)
     recvPacket = NTPPacket()
     retvalue = recvPacket.from_data(data)
     if retvalue == None:
+        print('something wrong with recvpacket from data')
         return
 
     timeStamp_high,timeStamp_low = recvPacket.GetTxTimeStamp()
@@ -193,12 +190,12 @@ def resync(socket, data, addr):
 
     sendPacket.ref_timestamp = recvTimestamp-5
     sendPacket.SetOriginTimeStamp(timeStamp_high,timeStamp_low)
-    print(sendPacket.orig_timestamp, sendPacket.orig_timestamp_high, sendPacket.orig_timestamp_low)
     sendPacket.recv_timestamp = recvTimestamp
     sendPacket.tx_timestamp = system_to_ntp_time(time.time())
 
     retvalue = sendPacket.to_data()
     if retvalue == None:
+        print('something wrong with sendpacket to data')
         return
     
     socket.sendto(retvalue,addr)

