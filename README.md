@@ -35,7 +35,7 @@ Use `go get <link>` to install.
 
 ## Usage
 ### Server
-Run `sudo python3 pythonserver/start.py` 
+Run `sudo python3 start.py` 
 
 You will be asked for MySQL credentials, this is for creating a database and saving state.
 

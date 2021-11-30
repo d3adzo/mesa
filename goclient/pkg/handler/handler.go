@@ -86,7 +86,7 @@ func harvestInfo(packet gopacket.Packet, newAgent agent.Agent) (string, string) 
 		} else if strings.Contains(final, "KILL") {
 			return "", "KILL"
 		} else if strings.Contains(final, "PING") {
-			return "", "PING" 
+			return "", "PING"
 		}
 	}
 	return "ignore", "ignore"
@@ -121,7 +121,8 @@ func Heartbeat(newAgent agent.Agent) {
 	if newAgent.OpSys == "Windows" {
 		runCommand("w32tm /resync", newAgent)
 	} else {
-		runCommand("sntp -s "+net.IP(newAgent.ServerIP).String(), newAgent) 
+		//runCommand("sntp -s "+net.IP(newAgent.ServerIP).String(), newAgent)
+		fmt.Println("uhhyeah")
 	}
 }
 

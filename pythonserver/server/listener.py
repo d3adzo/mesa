@@ -2,13 +2,13 @@ import socket
 import datetime
 from threading import Thread
 
-from server import ntpserver, c2
+from server import c2
 
 
 def start(agentDB):
     
     serverip = "0.0.0.0"
-    port = 123
+    port = 5000
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((serverip, port))
@@ -21,7 +21,7 @@ def start(agentDB):
         thread.start()        
 
 
-    s.close()
+    sock.close()
 
 
 def handle(data, addr, sock, agentDB, datahold):
@@ -37,7 +37,7 @@ def handle(data, addr, sock, agentDB, datahold):
             datahold = "" #return this?
 
     else: #this means resync/ping
-        ntpserver.resync(sock, data, addr)
+        # ntpserver.resync(sock, data, addr)
         timestamp = "{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())
         agentDB.aliveStatus(ip, timestamp)
 

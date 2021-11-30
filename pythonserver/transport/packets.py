@@ -1,6 +1,3 @@
-import datetime
-import base64
-
 from scapy.all import IP, UDP, NTP, send
 
 class Packet:

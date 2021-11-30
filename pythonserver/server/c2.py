@@ -10,7 +10,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
         if kill:
             tsObj.getDBObj().deadStatus(endpoint)
 
-        print(colored(f" Sending Reference \"{refId}\" ==> ({endpoint})\n", "magenta"))
+        print(colored(f"[*] Sending Reference \"{refId}\" ==> ({endpoint})\n", "magenta"))
 
         iPacket = packets.IDPacket(endpoint, refId)
         iPacket.sendIdPacket()
@@ -24,7 +24,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
             if kill:
                 tsObj.getDBObj().deadStatus(entry[0])
 
-            print(colored(f" Sending Reference \"{refId}\" ==> ({entry[0]})\n", "magenta"))
+            print(colored(f"[!] Sending Reference \"{refId}\" ==> ({entry[0]})\n", "magenta"))
             iPacket = packets.IDPacket(entry[0], refId)
             iPacket.sendIdPacket()
 
@@ -34,7 +34,7 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
             if kill:
                 tsObj.getDBObj().deadStatus(ip[0])
 
-            print(colored(f" Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
+            print(colored(f"[*] Sending Reference \"{refId}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             iPacket = packets.IDPacket(ip[0], refId)
             iPacket.sendIdPacket()
@@ -42,14 +42,14 @@ def sendRefCMD(tsObj, destGroup, endpoint, refId):
 
 def sendCMD(tsObj, cmd, destGroup, endpoint): 
     if destGroup == "agent": 
-        print(colored(f" Sending Command \"{cmd}\" ==> ({endpoint})\n", "magenta"))
+        print(colored(f"[*] Sending Command \"{cmd}\" ==> ({endpoint})\n", "magenta"))
         cPacket = packets.CommandPacket(endpoint, cmd)
         cPacket.sendCommandPacket()
 
     else:
         data = tsObj.getDBObj().pullSpecific(destGroup, endpoint)
         for ip in data:
-            print(colored(f" Sending Command \"{cmd}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
+            print(colored(f"[*] Sending Command \"{cmd}\" ==> {ip[0]} ({endpoint})\n", "magenta"))
 
             cPacket = packets.CommandPacket(ip[0], cmd)
             cPacket.sendCommandPacket()

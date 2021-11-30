@@ -67,13 +67,13 @@ def interactHelper(user_input, TS):
         
         data = TS.getDBObj().pullSpecific(dbType, arr[2])
         if len(data) == 0:
-            print(colored(f" {interactType} \"{arr[2]}\" does not exist.\n", "yellow"))
+            print(colored(f"[-] {interactType} \"{arr[2]}\" does not exist.\n", "yellow"))
             return
 
         interactPrompt(interactType, arr[2], TS)
 
     except Exception:
-        print(colored("Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>\n", 'yellow'))
+        print(colored("[-] Incorrect arguments given.\n SYNTAX: interact <A[GENT]/O[S]/S[ERVICE]> <id>\n", 'yellow'))
 
 
 def dbPrompt(TS):
@@ -92,10 +92,10 @@ def dbPrompt(TS):
 
         if "group" in user_input:
             arr = user_input.split(' ')
-            try: 
-                TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) 
-            except Exception:
-                print(colored("Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
+            # try: 
+            TS.getDBObj().addGrouping(arr[1], arr[2], arr[3]) 
+            # except Exception:
+                # print(colored("[-] Incorrect syntax. Should be \'group <ip> <os/service> <name>\'", 'yellow'))
         else:
             ops = {
                 "agents": (TS.displayBoard, "nothing"), 
@@ -218,7 +218,7 @@ def doNothing():
 
 
 def invalid_op():
-    print(colored(' Command not recognized. Enter \"help\" for command list.\n', 'red'))
+    print(colored('[-] Command not recognized. Enter \"help\" for command list.\n', 'red'))
 
 
 def cmdHelp():
@@ -240,7 +240,7 @@ def interactHelp():
 
 def dbHelp():
     print('DB Subcommand List')
-    print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.1-15.3 service SMB\"\n "
+    print(colored(" group <ip> <os/service> <name> ~ add a service identifier to an agent. Can specify a IP range. Ex. \"group 10.1.[1:15].3 service SMB\"\n "
                     "agents ~ list all agent entries.\n " 
                     "removeall ~ remove all agents from the database.\n " 
                     "meta ~ describe the agent tables metadata.\n "
