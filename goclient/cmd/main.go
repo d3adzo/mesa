@@ -13,7 +13,7 @@ func init() {
 	newAgent = agent.Agent{}
 	newAgent.OpSys, newAgent.ShellType, newAgent.ShellFlag = agent.DetectOS()
 	newAgent.IFace = agent.GetNetAdapter(newAgent)
-	newAgent.ServerIP = []byte{129, 21, 103, 49} //set to IP when compiling 
+	newAgent.ServerIP = []byte{127, 0, 0, 1} //set to IP when compiling
 	newAgent.MyIP = agent.GetMyIP()
 }
 
